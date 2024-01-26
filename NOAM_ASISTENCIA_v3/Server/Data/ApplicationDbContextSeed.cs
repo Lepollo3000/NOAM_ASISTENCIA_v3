@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Models;
 using OpenIddict.Abstractions;
@@ -24,20 +25,129 @@ public class ApplicationDbContextSeed : IHostedService
         _userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
-        _openIddictManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        //_openIddictManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
         _configuration = configuration;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await CreateAppDescriptors();
+        await InitializeDatabase();
+        //await CreateAppDescriptors();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
+
+    #region Initialize database
+    private async Task InitializeDatabase()
+    {
+        if (await TryToMigrate())
+        {
+            //await SeedDefaultData();
+            await SeedDefaultUsersAndRoles();
+        }
+    }
+
+    private async Task<bool> TryToMigrate()
+    {
+        try
+        {
+            await _dbcontext.Database.MigrateAsync();
+        }
+        catch (Exception)
+        {
+            _logger.Log(LogLevel.Error, "Error al migrar la base de datos.");
+
+            return false;
+        }
+
+        return true;
+    }
+    #endregion
+
+    #region Seed default data
+    #endregion
+
+    #region Seed default user and roles
+    private async Task SeedDefaultUsersAndRoles()
+    {
+        try
+        {
+            var adminRole = "Administrador";
+            var adminUser = new TempUser(name: "administrador", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Administrador", roles: new List<string>() { adminRole });
+
+            var gerenteRole = "Gerente";
+            var gerenteUser = new TempUser(name: "gerente", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Gerente", roles: new List<string>() { gerenteRole });
+
+            var intendenteRole = "Intendente";
+            var intendenteUser = new TempUser(name: "intendente", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Itendente", roles: new List<string>() { intendenteRole });
+
+            var roles = new List<string>() { adminRole, gerenteRole, intendenteRole };
+            var users = new List<TempUser>() { adminUser, gerenteUser, intendenteUser };
+
+            await CreateRolesIfDontExist(roles);
+            await CreateUsersIfDontExist(users);
+        }
+        catch (Exception)
+        {
+            _logger.Log(LogLevel.Error, "Error al crear roles y usuarios.");
+        }
+    }
+
+    private async Task CreateRolesIfDontExist(IEnumerable<string> roles)
+    {
+        foreach (string role in roles)
+        {
+            ApplicationRole? oRole = await _roleManager.FindByNameAsync(role);
+
+            if (oRole == null)
+            {
+                oRole = new ApplicationRole()
+                {
+                    //Id = Guid.NewGuid(),
+                    Name = role
+                };
+
+                await _roleManager.CreateAsync(oRole);
+            }
+        }
+    }
+
+    private async Task CreateUsersIfDontExist(IEnumerable<TempUser> users)
+    {
+        foreach (TempUser user in users)
+        {
+            ApplicationUser? oUser = await _userManager.FindByNameAsync(user.Name);
+
+            if (oUser == null)
+            {
+                oUser = new ApplicationUser()
+                {
+                    //Id = Guid.NewGuid(),
+                    UserName = user.Name,
+                    Email = user.Email,
+                    Nombre = user.Nombre,
+                    Apellido = user.Apellido,
+                    IdTurno = 1
+                };
+
+                // CREATE USER
+                await _userManager.CreateAsync(oUser, user.Password);
+                // CONFIRM EMAIL
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(oUser);
+                await _userManager.ConfirmEmailAsync(oUser, token);
+
+                if (user.Roles.Any())
+                {
+                    await _userManager.AddToRolesAsync(oUser, user.Roles);
+                }
+            }
+        }
+    }
+    #endregion
 
     #region APP_DESCRIPTOR
     private async Task CreateAppDescriptors()
