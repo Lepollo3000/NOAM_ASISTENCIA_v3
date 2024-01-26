@@ -12,6 +12,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
+    <PackageReference Include="OpenIddict" Version="5.1.0" />
+    <PackageReference Include="OpenIddict.AspNetCore" Version="5.1.0" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +32,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+    <Folder Include="Features\Authentication\" />
   </ItemGroup>
 
 </Project>
