@@ -1,45 +1,45 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Authentication;
-using NOAM_ASISTENCIA_v3.Shared.Services;
+using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace NOAM_ASISTENCIA_v3.Client.Helpers;
+namespace NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 
 /// <summary>
 /// Handles state for cookie-based auth.
 /// </summary>
 /// <remarks>
-/// Create a new instance of the auth provider.
+/// Create a new instance of the original AuthenticationStateProvider.
 /// </remarks>
-/// <param name="httpClientFactory">Factory to retrieve auth client.</param>
-public class CookieAuthenticationStateProvider(IHttpClientFactory httpClientFactory) : AuthenticationStateProvider, IAccountManagement
+/// <param name="localStorage">Service to access local storage.</param>
+public class CookieAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage) : AuthenticationStateProvider, IAccountManagement
 {
     /// <summary>
     /// Map the JavaScript-formatted properties to C#-formatted classes.
     /// </summary>
-    private readonly JsonSerializerOptions jsonSerializerOptions =
-        new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
+    private readonly JsonSerializerOptions jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
 
     /// <summary>
     /// Special auth client.
     /// </summary>
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("Auth");
+    private readonly HttpClient _httpClient = httpClient;
 
     /// <summary>
-    /// Authentication state.
+    /// Service to access local storage.
+    /// </summary>
+    private readonly ILocalStorageService _localStorage = localStorage;
+
+    /// <summary>
+    /// Current authentication state.
     /// </summary>
     private bool _authenticated = false;
-
-    /// <summary>
-    /// Default principal for anonymous (not authenticated) users.
-    /// </summary>
-    private readonly ClaimsPrincipal Unauthenticated =
-        new(new ClaimsIdentity());
 
     /// <summary>
     /// Register a new user.
@@ -118,15 +118,22 @@ public class CookieAuthenticationStateProvider(IHttpClientFactory httpClientFact
         {
             // login with cookies
             var result = await _httpClient.PostAsJsonAsync(
-                "login?useCookies=true", new
+                "api/accounts/login", new LoginRequest
                 {
-                    email,
-                    password
+                    Username = email,
+                    Password = password,
+                    RememberMe = true
                 });
 
             // success?
             if (result.IsSuccessStatusCode)
             {
+                var token = await result.Content.ReadAsStringAsync();
+                await _localStorage.SetItemAsync("token", token);
+                AuthenticationState state = await GetAuthenticationStateAsync();
+
+                _authenticated = state.User.Identity?.IsAuthenticated ?? false;
+
                 // need to refresh auth state
                 NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 
@@ -140,7 +147,7 @@ public class CookieAuthenticationStateProvider(IHttpClientFactory httpClientFact
         return new FormResult
         {
             Succeeded = false,
-            ErrorList = ["Invalid email and/or password."]
+            ErrorList = ["morido"] /*UserErrors.ErrorInesperado.Errors.ToArray()*/
         };
     }
 
@@ -154,58 +161,73 @@ public class CookieAuthenticationStateProvider(IHttpClientFactory httpClientFact
     /// <returns>The authentication state asynchronous request.</returns>
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        _authenticated = false;
+        string token = await _localStorage.GetItemAsStringAsync("token");
+        ClaimsIdentity identity = new();
 
-        // default to not authenticated
-        var user = Unauthenticated;
+        _httpClient.DefaultRequestHeaders.Authorization = null;
 
-        try
+        if (!string.IsNullOrEmpty(token))
         {
-            // the user info endpoint is secured, so if the user isn't logged in this will fail
-            var userResponse = await _httpClient.GetAsync("manage/info");
+            identity = new(ParseClaimsFromJwt(token), "jwt");
 
-            // throw if user info wasn't retrieved
-            userResponse.EnsureSuccessStatusCode();
-
-            // user is authenticated,so let's build their authenticated identity
-            var userJson = await userResponse.Content.ReadAsStringAsync();
-            var userInfo = JsonSerializer.Deserialize<UserInfo>(userJson, jsonSerializerOptions);
-
-            if (userInfo != null)
-            {
-                // in our system name and email are the same
-                var claims = new List<Claim>
-                    {
-                        new(ClaimTypes.Name, userInfo.Email),
-                        new(ClaimTypes.Email, userInfo.Email)
-                    };
-
-                // add any additional claims
-                claims.AddRange(
-                    userInfo.Claims.Where(c => c.Key != ClaimTypes.Name && c.Key != ClaimTypes.Email)
-                        .Select(c => new Claim(c.Key, c.Value)));
-
-                // set the principal
-                var id = new ClaimsIdentity(claims, nameof(CookieAuthenticationStateProvider));
-                user = new ClaimsPrincipal(id);
-                _authenticated = true;
-            }
+            _httpClient.DefaultRequestHeaders
+                .Authorization = new("Bearer", token.Replace("\"", ""));
         }
-        catch { }
 
-        // return the state
-        return new AuthenticationState(user);
+        ClaimsPrincipal user = new(identity);
+        AuthenticationState state = new(user);
+
+        NotifyAuthenticationStateChanged(Task.FromResult(state));
+
+        await GetAuthenticationStateAsync();
+
+        return state;
     }
 
+    /// <summary>
+    /// Cierra la sesión y elimina todo rastro de la misma
+    /// </summary>
     public async Task LogoutAsync()
     {
-        await _httpClient.PostAsync("Logout", null);
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        await _localStorage.RemoveItemAsync("token");
+
+        ClaimsPrincipal anonymousUser = new(new ClaimsIdentity());
+        AuthenticationState state = new(anonymousUser);
+
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+
+        NotifyAuthenticationStateChanged(Task.FromResult(state));
     }
 
+    /// <summary>
+    /// Revisa si hay una sesión actualmente iniciada
+    /// </summary>
     public async Task<bool> CheckAuthenticatedAsync()
     {
         await GetAuthenticationStateAsync();
+
         return _authenticated;
+    }
+
+    private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        var payload = jwt.Split('.')[1];
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var keyValuePairs = JsonSerializer
+            .Deserialize<Dictionary<string, object>>(jsonBytes);
+
+        return keyValuePairs?.Select(kvp =>
+            new Claim(kvp.Key, kvp.Value?.ToString()!))!;
+    }
+
+    private static byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+
+        return Convert.FromBase64String(base64);
     }
 }

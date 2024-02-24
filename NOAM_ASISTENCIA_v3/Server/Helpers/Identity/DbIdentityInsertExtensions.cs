@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
-namespace NOAM_ASISTENCIA_v3.Server.Helpers;
+namespace NOAM_ASISTENCIA_v3.Server.Helpers.Identity;
 
 public static class DbIdentityInsertExtensions
 {

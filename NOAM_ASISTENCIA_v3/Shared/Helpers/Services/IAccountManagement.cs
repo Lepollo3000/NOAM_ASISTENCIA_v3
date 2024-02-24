@@ -1,6 +1,6 @@
 ﻿using NOAM_ASISTENCIA_v3.Shared.Contracts.Authentication;
 
-namespace NOAM_ASISTENCIA_v3.Shared.Services;
+namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 
 /// <summary>
 /// Account management services.

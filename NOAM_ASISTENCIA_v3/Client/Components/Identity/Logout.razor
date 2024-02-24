@@ -1,6 +1,6 @@
 ﻿@page "/logout"
 
-@inject IAccountManagement Acct
+@inject IAccountManagement AccountManager
 
 <PageTitle>Logout</PageTitle>
 
@@ -20,9 +20,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (await Acct.CheckAuthenticatedAsync())
+        if (await AccountManager.CheckAuthenticatedAsync())
         {
-            await Acct.LogoutAsync();
+            await AccountManager.LogoutAsync();
         }
 
         await base.OnInitializedAsync();

@@ -1,41 +1,86 @@
+using Carter;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NOAM_ASISTENCIA_v3.Server.Data;
 using NOAM_ASISTENCIA_v3.Server.Domain;
+using NOAM_ASISTENCIA_v3.Server.Helpers;
+using NOAM_ASISTENCIA_v3.Server.Helpers.Services;
 using NOAM_ASISTENCIA_v3.Server.Models;
-using System.Security.Claims;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(connectionString);
-    options.UseOpenIddict();
-});
+var assembly = typeof(Program).Assembly;
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    {
+        options.UseSqlServer(connectionString);
+    });
+
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+    })
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders()
+    .AddSignInManager<SignInManager<ApplicationUser>>()
     .AddApiEndpoints();
 
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//    .AddJwtBearer(options =>
+//    {
+//        IConfigurationSection section = builder.Configuration.GetSection("TokenValidationParameters");
+
+//        options.TokenValidationParameters = new TokenValidationParameters()
+//        {
+//            ValidateIssuer = true,
+//            ValidateAudience = true,
+//            ValidateLifetime = true,
+//            ValidateIssuerSigningKey = true,
+//            ValidIssuer = section.GetValue<string>("JwtIssuer"),
+//            ValidAudience = section.GetValue<string>("JwtAudience"),
+//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+//                .GetBytes(section.GetValue<string>("JwtSecurityKey") ?? string.Empty))
+//        };
+//    });
+
 // cookie authentication
-builder.Services.AddAuthentication()
+builder.Services
+    .AddAuthentication()
     .AddBearerToken(IdentityConstants.BearerScheme);
 
 // configure authorization
 builder.Services.AddAuthorizationBuilder();
 
-builder.Services.AddRazorPages();
-builder.Services.AddControllersWithViews();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCarter(configurator: options => options.WithValidatorLifetime(ServiceLifetime.Scoped));
+builder.Services.AddMediatR(options => options.RegisterServicesFromAssembly(assembly));
+builder.Services.AddValidatorsFromAssembly(assembly);
+builder.Services.RegisterMappingConfiguration();
+
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddHostedService<ApplicationDbContextSeed>();
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "NOAM Asistencia", Version = "v3.0" });
+});
+
+builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews();
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
@@ -44,6 +89,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
     app.UseWebAssemblyDebugging();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+         c.SwaggerEndpoint("/swagger/v1/swagger.json", "NOAM Asistencia v3"));
 }
 else
 {
@@ -59,22 +107,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// create routes for the identity endpoints
-app.MapIdentityApi<ApplicationUser>();
-
-// provide an end point to clear the cookie for logout
-// NOTE: This logout code will be updated shortly.
-//       https://github.com/dotnet/blazor-samples/issues/132
-app.MapPost("/Logout", async (ClaimsPrincipal user, SignInManager<ApplicationUser> signInManager) =>
-{
-    await signInManager.SignOutAsync();
-
-    return TypedResults.Ok();
-});
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapCarter();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");

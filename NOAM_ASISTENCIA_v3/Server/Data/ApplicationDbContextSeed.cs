@@ -1,10 +1,7 @@
-﻿
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Models;
-using OpenIddict.Abstractions;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace NOAM_ASISTENCIA_v3.Server.Data;
 
@@ -15,7 +12,6 @@ public class ApplicationDbContextSeed : IHostedService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly ILogger<ApplicationDbContextSeed> _logger;
-    private readonly IOpenIddictApplicationManager _openIddictManager;
 
     public ApplicationDbContextSeed(IServiceProvider serviceProvider, IConfiguration configuration)
     {
@@ -25,7 +21,6 @@ public class ApplicationDbContextSeed : IHostedService
         _userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
-        //_openIddictManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
         _configuration = configuration;
     }
@@ -145,64 +140,6 @@ public class ApplicationDbContextSeed : IHostedService
                     await _userManager.AddToRolesAsync(oUser, user.Roles);
                 }
             }
-        }
-    }
-    #endregion
-
-    #region APP_DESCRIPTOR
-    private async Task CreateAppDescriptors()
-    {
-        try
-        {
-            TempAppDescriptor[] appDescriptorSection = _configuration
-                .GetSection("OpenIdAppDescriptors")
-                .Get<TempAppDescriptor[]>()
-                    ?? throw new InvalidOperationException("Se debe configurar al menos un descriptor para OpendId Connect.");
-
-            foreach (TempAppDescriptor appDescriptor in appDescriptorSection)
-            {
-                // SI NO SE ENCUENTRA EL DESCRIPTOR CON SU ID, LO CREA
-                if (await _openIddictManager.FindByClientIdAsync(appDescriptor.ClientId) is null)
-                {
-                    await _openIddictManager.CreateAsync(new OpenIddictApplicationDescriptor
-                    {
-                        ClientId = appDescriptor.ClientId,
-                        ConsentType = ConsentTypes.Explicit,
-                        DisplayName = "Blazor Client Application",
-                        ClientType = ClientTypes.Public,
-                        PostLogoutRedirectUris =
-                        {
-                            new Uri($"{appDescriptor.BaseUrl}authentication/logout-callback")
-                        },
-                        RedirectUris =
-                        {
-                            new Uri($"{appDescriptor.BaseUrl}authentication/login-callback")
-                        },
-                        Permissions =
-                        {
-                            Permissions.Endpoints.Authorization,
-                            Permissions.Endpoints.Logout,
-                            Permissions.Endpoints.Token,
-                            Permissions.GrantTypes.AuthorizationCode,
-                            Permissions.GrantTypes.RefreshToken,
-                            Permissions.ResponseTypes.Code,
-                            Permissions.Scopes.Email,
-                            Permissions.Scopes.Profile,
-                            Permissions.Scopes.Roles
-                        },
-                        Requirements =
-                        {
-                            Requirements.Features.ProofKeyForCodeExchange
-                        }
-                    });
-                }
-            }
-        }
-        catch (Exception)
-        {
-            _logger.Log(LogLevel.Error, "Error al intentar crear App Descriptors");
-
-            throw;
         }
     }
     #endregion
