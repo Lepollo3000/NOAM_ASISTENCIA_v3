@@ -87,30 +87,7 @@ public class LoginEndpoint : ICarterModule
                 var query = request.Adapt<Login.Request>();
                 var result = await mediator.Send(query);
 
-                return result.IsSuccess switch
-                {
-                    false when result.ValidationErrors.Count > 0 =>
-                        Results.BadRequest(new ProblemDetails
-                        {
-                            Title = Errors.General.ErrorValidaciones,
-                            Extensions = new Dictionary<string, object?>
-                            {
-                                { "errors", result.ValidationErrors.Select(model => model.ErrorMessage) }
-                            }
-                        }),
-                    true =>
-                        Results.Ok(result.Value),
-                    _ =>
-                        Results.Problem(new ProblemDetails
-                        {
-                            Title = Errors.General.ErrorInesperado,
-                            Status = StatusCodes.Status500InternalServerError,
-                            Extensions = new Dictionary<string, object?>
-                            {
-                                { "errors", result.Errors }
-                            }
-                        })
-                };
+                return result.ToEndpointResult();
             });
     }
 }

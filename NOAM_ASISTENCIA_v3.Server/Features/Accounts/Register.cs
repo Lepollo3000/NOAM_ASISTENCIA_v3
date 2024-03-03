@@ -105,30 +105,7 @@ public class RegisterEndpoint : ICarterModule
                 var query = request.Adapt<Register.Query>();
                 var result = await mediator.Send(query);
 
-                return result.IsSuccess switch
-                {
-                    false when result.ValidationErrors.Count > 0 =>
-                        Results.BadRequest(new ProblemDetails
-                        {
-                            Title = "Se encontraron conflictos con los valores ingresados",
-                            Extensions = new Dictionary<string, object?>
-                            {
-                                { "errors", result.ValidationErrors.Select(model => model.ErrorMessage) }
-                            }
-                        }),
-                    true =>
-                        Results.Ok(result.Value),
-                    _ =>
-                        Results.Problem(new ProblemDetails
-                        {
-                            Title = Errors.General.ErrorInesperado,
-                            Status = StatusCodes.Status500InternalServerError,
-                            Extensions = new Dictionary<string, object?>
-                            {
-                                { "errors", result.Errors }
-                            }
-                        })
-                };
+                return result.ToEndpointResult();
             });
     }
 }

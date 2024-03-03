@@ -34,7 +34,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Users\" />
-    <Folder Include="Helpers\Errors\" />
   </ItemGroup>
 
 </Project>
