@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Helpers;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
-using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 
 namespace NOAM_ASISTENCIA_v3.Server.Features.Accounts;
