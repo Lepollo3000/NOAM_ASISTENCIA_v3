@@ -123,9 +123,9 @@ public class ApplicationDbContextSeed : IHostedService
                     //Id = Guid.NewGuid(),
                     UserName = user.Name,
                     Email = user.Email,
-                    Nombre = user.Nombre,
-                    Apellido = user.Apellido,
-                    IdTurno = 1
+                    Nombres = user.Nombre,
+                    Apellidos = user.Apellido,
+                    TurnoId = null
                 };
 
                 // CREATE USER

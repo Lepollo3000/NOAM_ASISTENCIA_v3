@@ -2,6 +2,4 @@
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public class ApplicationRole : IdentityRole<int>
-{
-}
+public class ApplicationRole : IdentityRole<UsuarioRolId> { }

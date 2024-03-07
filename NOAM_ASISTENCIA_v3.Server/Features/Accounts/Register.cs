@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Helpers;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
-using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 
 namespace NOAM_ASISTENCIA_v3.Server.Features.Accounts;
@@ -48,9 +47,9 @@ public static class Register
             ApplicationUser applicationUser = new()
             {
                 UserName = request.Username,
-                Nombre = request.Nombre,
-                Apellido = request.Apellido,
-                IdTurno = request.IdTurno
+                Nombres = request.Nombre,
+                Apellidos = request.Apellido,
+                TurnoId = new(request.IdTurno)
             };
 
             IdentityResult createResult = await userManager.CreateAsync(applicationUser, request.Password);
