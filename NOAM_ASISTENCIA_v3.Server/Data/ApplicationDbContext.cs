@@ -1,6 +1,6 @@
-﻿using Fluxera.StronglyTypedId.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 
 namespace NOAM_ASISTENCIA_v3.Server.Data;
@@ -12,10 +12,36 @@ public class ApplicationDbContext(DbContextOptions options)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ApplicationUser>(entity => entity.UseStronglyTypedId());
-        modelBuilder.Entity<ApplicationRole>(entity => entity.UseStronglyTypedId());
-        modelBuilder.Entity<Asistencia>(entity => entity.UseStronglyTypedId());
-        modelBuilder.Entity<Sucursal>(entity => entity.UseStronglyTypedId());
-        modelBuilder.Entity<Turno>(entity => entity.UseStronglyTypedId());
+        var usuarioIdConverter = new ValueConverter<UsuarioRolId, int>(
+            id => id.Value,
+            guidValue => new UsuarioRolId(guidValue));
+        var sucursalIdConverter = new ValueConverter<SucursalId, int>(
+            id => id.Value,
+            guidValue => new SucursalId(guidValue));
+        var turnoIdConverter = new ValueConverter<TurnoId, int>(
+            id => id.Value,
+            guidValue => new TurnoId(guidValue));
+
+        modelBuilder.Entity<ApplicationUser>(entity =>
+        {
+            entity.Property(e => e.Id)
+                .HasConversion(usuarioIdConverter);
+        });
+        modelBuilder.Entity<ApplicationRole>(entity =>
+        {
+            entity.Property(e => e.Id)
+                .HasConversion(usuarioIdConverter);
+        });
+        modelBuilder.Entity<Sucursal>(entity =>
+        {
+            entity.Property(e => e.Id)
+                .HasConversion(sucursalIdConverter);
+        });
+        modelBuilder.Entity<Turno>(entity =>
+        {
+            entity.Property(e => e.Id)
+                .HasConversion(turnoIdConverter);
+        });
     }
 }
+

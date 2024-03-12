@@ -6,12 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public sealed class TurnoId(int value) : StronglyTypedId<TurnoId, int>(value) { }
+public readonly record struct TurnoId(int Value);
 
 [PrimaryKey(nameof(Id))]
 public class Turno : Entidad
 {
-    public TurnoId Id { get; set; } = null!;
+    public TurnoId Id { get; set; }
     [MaxLength(1000)]
     public string Descripcion { get; set; } = null!;
 

@@ -24,16 +24,9 @@ public class ApplicationDbContextSeed : IHostedService
         _configuration = configuration;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        await InitializeDatabase();
-        //await CreateAppDescriptors();
-    }
+    public async Task StartAsync(CancellationToken cancellationToken) => await InitializeDatabase();
 
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task StopAsync(CancellationToken cancellationToken) => await Task.CompletedTask;
 
     #region Initialize database
     private async Task InitializeDatabase()
@@ -51,9 +44,9 @@ public class ApplicationDbContextSeed : IHostedService
         {
             await _dbcontext.Database.MigrateAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _logger.Log(LogLevel.Error, "Error al migrar la base de datos.");
+            _logger.LogError("Error al migrar la base de datos.");
 
             return false;
         }
@@ -70,30 +63,48 @@ public class ApplicationDbContextSeed : IHostedService
     {
         try
         {
-            var adminRole = "Administrador";
-            var adminUser = new TempUser(name: "administrador", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Administrador", roles: new List<string>() { adminRole });
+            string adminRole = "Administrador";
+            TempUser adminUser = new(
+                name: "administrador",
+                email: "",
+                password: "Pa55w.rd",
+                nombre: "Usuario",
+                apellido: "Administrador",
+                roles: [adminRole]);
 
-            var gerenteRole = "Gerente";
-            var gerenteUser = new TempUser(name: "gerente", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Gerente", roles: new List<string>() { gerenteRole });
+            string gerenteRole = "Gerente";
+            TempUser gerenteUser = new(
+                name: "gerente",
+                email: "",
+                password: "Pa55w.rd",
+                nombre: "Usuario",
+                apellido: "Gerente",
+                roles: [gerenteRole]);
 
-            var intendenteRole = "Intendente";
-            var intendenteUser = new TempUser(name: "intendente", email: "", password: "Pa55w.rd", nombre: "Usuario", apellido: "Itendente", roles: new List<string>() { intendenteRole });
+            string intendenteRole = "Intendente";
+            TempUser intendenteUser = new(
+                name: "intendente",
+                email: "",
+                password: "Pa55w.rd",
+                nombre: "Usuario",
+                apellido: "Itendente",
+                roles: [intendenteRole]);
 
-            var roles = new List<string>() { adminRole, gerenteRole, intendenteRole };
-            var users = new List<TempUser>() { adminUser, gerenteUser, intendenteUser };
+            IEnumerable<string> roles = [adminRole, gerenteRole, intendenteRole];
+            IEnumerable<TempUser> users = [adminUser, gerenteUser, intendenteUser];
 
             await CreateRolesIfDontExist(roles);
             await CreateUsersIfDontExist(users);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _logger.Log(LogLevel.Error, "Error al crear roles y usuarios.");
+            _logger.LogError("Error al crear roles y usuarios.");
         }
     }
 
     private async Task CreateRolesIfDontExist(IEnumerable<string> roles)
     {
-        foreach (string role in roles)
+        foreach ((string role, int i) in roles.Select((role, i) => (role, i)))
         {
             ApplicationRole? oRole = await _roleManager.FindByNameAsync(role);
 
@@ -101,7 +112,7 @@ public class ApplicationDbContextSeed : IHostedService
             {
                 oRole = new ApplicationRole()
                 {
-                    //Id = Guid.NewGuid(),
+                    Id = new(i + 1),
                     Name = role
                 };
 
@@ -112,7 +123,7 @@ public class ApplicationDbContextSeed : IHostedService
 
     private async Task CreateUsersIfDontExist(IEnumerable<TempUser> users)
     {
-        foreach (TempUser user in users)
+        foreach ((TempUser user, int i) in users.Select((user, i) => (user, i)))
         {
             ApplicationUser? oUser = await _userManager.FindByNameAsync(user.Name);
 
@@ -120,7 +131,7 @@ public class ApplicationDbContextSeed : IHostedService
             {
                 oUser = new ApplicationUser()
                 {
-                    //Id = Guid.NewGuid(),
+                    Id = new(i + 1),
                     UserName = user.Name,
                     Email = user.Email,
                     Nombres = user.Nombre,
@@ -128,10 +139,9 @@ public class ApplicationDbContextSeed : IHostedService
                     TurnoId = null
                 };
 
-                // CREATE USER
                 await _userManager.CreateAsync(oUser, user.Password);
-                // CONFIRM EMAIL
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(oUser);
+
+                string token = await _userManager.GenerateEmailConfirmationTokenAsync(oUser);
                 await _userManager.ConfirmEmailAsync(oUser, token);
 
                 if (user.Roles.Any())
@@ -165,12 +175,6 @@ public class ApplicationDbContextSeed : IHostedService
         public int Id { get; } = id;
         public string CodigoId { get; } = codigoId;
         public string Descripcion { get; } = descripcion;
-    }
-
-    private class TempAppDescriptor
-    {
-        public string ClientId { get; set; } = null!;
-        public string BaseUrl { get; set; } = null!;
     }
     #endregion
 

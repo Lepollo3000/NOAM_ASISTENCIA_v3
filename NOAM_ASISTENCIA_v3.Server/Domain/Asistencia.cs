@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NOAM_ASISTENCIA_v3.Server.Data.Abstractions;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 [PrimaryKey(nameof(UsuarioId), nameof(SucursalId), nameof(FechaEntrada))]
-public class Asistencia
+public class Asistencia : Entidad
 {
-    public UsuarioRolId UsuarioId { get; set; } = null!;
-    public SucursalId SucursalId { get; set; } = null!;
+    public UsuarioRolId UsuarioId { get; set; }
+    public SucursalId SucursalId { get; set; }
     public DateTime FechaEntrada { get; set; }
     public DateTime? FechaSalida { get; set; }
 

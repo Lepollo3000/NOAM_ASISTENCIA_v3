@@ -43,7 +43,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -53,7 +53,13 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     UsuarioId = table.Column<int>(type: "int", nullable: false),
                     SucursalId = table.Column<int>(type: "int", nullable: false),
                     FechaEntrada = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaSalida = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    FechaSalida = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FechaUtcAlta = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaUtcEdita = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FechaUtcElimina = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UsuarioAltaId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioEditaId = table.Column<int>(type: "int", nullable: true),
+                    UsuarioEliminaId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,7 +110,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,7 +160,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -179,7 +185,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         column: x => x.UsuarioAltaId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Sucursal_AspNetUsers_UsuarioEditaId",
                         column: x => x.UsuarioEditaId,
@@ -213,7 +219,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         column: x => x.UsuarioAltaId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Turno_AspNetUsers_UsuarioEditaId",
                         column: x => x.UsuarioEditaId,
@@ -230,6 +236,21 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 name: "IX_Asistencia_SucursalId",
                 table: "Asistencia",
                 column: "SucursalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asistencia_UsuarioAltaId",
+                table: "Asistencia",
+                column: "UsuarioAltaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asistencia_UsuarioEditaId",
+                table: "Asistencia",
+                column: "UsuarioEditaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asistencia_UsuarioEliminaId",
+                table: "Asistencia",
+                column: "UsuarioEliminaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -306,12 +327,34 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 column: "UsuarioEliminaId");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_Asistencia_AspNetUsers_UsuarioAltaId",
+                table: "Asistencia",
+                column: "UsuarioAltaId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Asistencia_AspNetUsers_UsuarioEditaId",
+                table: "Asistencia",
+                column: "UsuarioEditaId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Asistencia_AspNetUsers_UsuarioEliminaId",
+                table: "Asistencia",
+                column: "UsuarioEliminaId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Asistencia_AspNetUsers_UsuarioId",
                 table: "Asistencia",
                 column: "UsuarioId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Asistencia_Sucursal_SucursalId",
@@ -319,7 +362,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 column: "SucursalId",
                 principalTable: "Sucursal",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserClaims_AspNetUsers_UserId",
@@ -327,7 +370,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserLogins_AspNetUsers_UserId",
@@ -335,7 +378,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserRoles_AspNetUsers_UserId",
@@ -343,7 +386,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUsers_Turno_TurnoId",

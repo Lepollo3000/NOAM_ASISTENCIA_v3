@@ -1,11 +1,10 @@
-﻿using Fluxera.StronglyTypedId;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public class UsuarioRolId(int value) : StronglyTypedId<UsuarioRolId, int>(value) { }
+public readonly record struct UsuarioRolId(int Value);
 
 public class ApplicationUser : IdentityUser<UsuarioRolId>
 {
@@ -19,7 +18,7 @@ public class ApplicationUser : IdentityUser<UsuarioRolId>
 
 
     [ForeignKey(nameof(TurnoId))]
-    public Turno? Turno { get; set; }
+    public virtual Turno? Turno { get; set; }
 
     [InverseProperty(nameof(Asistencia.Usuario))]
     public virtual ICollection<Asistencia> Asistencias { get; set; } = null!;

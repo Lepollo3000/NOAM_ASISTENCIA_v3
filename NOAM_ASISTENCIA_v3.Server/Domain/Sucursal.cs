@@ -6,12 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public sealed class SucursalId(int value) : StronglyTypedId<SucursalId, int>(value) { }
+public readonly record struct SucursalId(int Value);
 
 [PrimaryKey(nameof(Id))]
 public class Sucursal : Entidad
 {
-    public SucursalId Id { get; set; } = null!;
+    public SucursalId Id { get; set; }
     [MaxLength(5)]
     public string CodigoId { get; set; } = null!;
     [MaxLength(100)]

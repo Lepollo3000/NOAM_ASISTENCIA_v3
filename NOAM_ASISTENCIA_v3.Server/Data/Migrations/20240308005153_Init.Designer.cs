@@ -12,7 +12,7 @@ using NOAM_ASISTENCIA_v3.Server.Data;
 namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240307140302_Init")]
+    [Migration("20240308005153_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,7 +49,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +73,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -94,7 +94,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -109,7 +109,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -255,9 +255,33 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.Property<DateTime?>("FechaSalida")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("FechaUtcAlta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaUtcEdita")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaUtcElimina")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UsuarioAltaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioEditaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioEliminaId")
+                        .HasColumnType("int");
+
                     b.HasKey("UsuarioId", "SucursalId", "FechaEntrada");
 
                     b.HasIndex("SucursalId");
+
+                    b.HasIndex("UsuarioAltaId");
+
+                    b.HasIndex("UsuarioEditaId");
+
+                    b.HasIndex("UsuarioEliminaId");
 
                     b.ToTable("Asistencia");
                 });
@@ -345,7 +369,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.ToTable("Turno");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationRole", null)
                         .WithMany()
@@ -354,7 +378,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", null)
                         .WithMany()
@@ -363,7 +387,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", null)
                         .WithMany()
@@ -372,7 +396,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationRole", null)
                         .WithMany()
@@ -387,7 +411,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioId>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>
                 {
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", null)
                         .WithMany()
@@ -413,6 +437,20 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", "UsuarioAlta")
+                        .WithMany()
+                        .HasForeignKey("UsuarioAltaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", "UsuarioEdita")
+                        .WithMany()
+                        .HasForeignKey("UsuarioEditaId");
+
+                    b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", "UsuarioElimina")
+                        .WithMany()
+                        .HasForeignKey("UsuarioEliminaId");
+
                     b.HasOne("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", "Usuario")
                         .WithMany("Asistencias")
                         .HasForeignKey("UsuarioId")
@@ -422,6 +460,12 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.Navigation("Sucursal");
 
                     b.Navigation("Usuario");
+
+                    b.Navigation("UsuarioAlta");
+
+                    b.Navigation("UsuarioEdita");
+
+                    b.Navigation("UsuarioElimina");
                 });
 
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.Sucursal", b =>
