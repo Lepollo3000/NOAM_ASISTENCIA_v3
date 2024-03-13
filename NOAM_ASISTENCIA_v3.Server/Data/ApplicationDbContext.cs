@@ -25,12 +25,14 @@ public class ApplicationDbContext(DbContextOptions options)
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion(usuarioIdConverter);
+                .HasConversion(usuarioIdConverter)
+                .UseIdentityColumn();
         });
         modelBuilder.Entity<ApplicationRole>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion(usuarioIdConverter);
+                .HasConversion(usuarioIdConverter)
+                .UseIdentityColumn();
         });
         modelBuilder.Entity<Sucursal>(entity =>
         {

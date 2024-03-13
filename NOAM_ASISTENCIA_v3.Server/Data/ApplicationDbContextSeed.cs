@@ -87,7 +87,7 @@ public class ApplicationDbContextSeed : IHostedService
                 email: "",
                 password: "Pa55w.rd",
                 nombre: "Usuario",
-                apellido: "Itendente",
+                apellido: "Intendente",
                 roles: [intendenteRole]);
 
             IEnumerable<string> roles = [adminRole, gerenteRole, intendenteRole];
@@ -112,7 +112,6 @@ public class ApplicationDbContextSeed : IHostedService
             {
                 oRole = new ApplicationRole()
                 {
-                    Id = new(i + 1),
                     Name = role
                 };
 
@@ -131,7 +130,6 @@ public class ApplicationDbContextSeed : IHostedService
             {
                 oUser = new ApplicationUser()
                 {
-                    Id = new(i + 1),
                     UserName = user.Name,
                     Email = user.Email,
                     Nombres = user.Nombre,

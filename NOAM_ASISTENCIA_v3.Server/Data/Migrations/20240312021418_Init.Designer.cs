@@ -12,7 +12,7 @@ using NOAM_ASISTENCIA_v3.Server.Data;
 namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240308005153_Init")]
+    [Migration("20240312021418_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -131,7 +131,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -158,7 +161,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -289,7 +295,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.Sucursal", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CodigoId")
                         .IsRequired()
@@ -333,7 +342,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.Turno", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Descripcion")
                         .IsRequired()

@@ -128,7 +128,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -155,7 +158,10 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -280,13 +286,16 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 
                     b.HasIndex("UsuarioEliminaId");
 
-                    b.ToTable("Asistencia", (string)null);
+                    b.ToTable("Asistencia");
                 });
 
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.Sucursal", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CodigoId")
                         .IsRequired()
@@ -324,13 +333,16 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 
                     b.HasIndex("UsuarioEliminaId");
 
-                    b.ToTable("Sucursal", (string)null);
+                    b.ToTable("Sucursal");
                 });
 
             modelBuilder.Entity("NOAM_ASISTENCIA_v3.Server.Domain.Turno", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
@@ -363,7 +375,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 
                     b.HasIndex("UsuarioEliminaId");
 
-                    b.ToTable("Turno", (string)null);
+                    b.ToTable("Turno");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<NOAM_ASISTENCIA_v3.Server.Domain.UsuarioRolId>", b =>

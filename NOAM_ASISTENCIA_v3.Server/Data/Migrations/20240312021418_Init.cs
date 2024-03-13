@@ -15,7 +15,8 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -117,7 +118,8 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Nombres = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Apellidos = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     TurnoId = table.Column<int>(type: "int", nullable: true),
@@ -167,7 +169,8 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 name: "Sucursal",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CodigoId = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FechaUtcAlta = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -202,7 +205,8 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                 name: "Turno",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Descripcion = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     FechaUtcAlta = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaUtcEdita = table.Column<DateTime>(type: "datetime2", nullable: true),
