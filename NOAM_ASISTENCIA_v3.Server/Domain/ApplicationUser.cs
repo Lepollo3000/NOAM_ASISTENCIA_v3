@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 public readonly record struct UsuarioRolId(int Value);
+
+public class ApplicationUserConverter() : ValueConverter<UsuarioRolId, int>(id => id.Value, intValue => new UsuarioRolId(intValue)) { }
 
 public class ApplicationUser : IdentityUser<UsuarioRolId>
 {

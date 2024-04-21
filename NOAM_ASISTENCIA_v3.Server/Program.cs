@@ -20,10 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager<SignInManager<ApplicationUser>>()
-    .AddApiEndpoints();
-builder.Services.AddAuthentication()
-    .AddBearerToken(IdentityConstants.BearerScheme);
+    .AddSignInManager<SignInManager<ApplicationUser>>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();

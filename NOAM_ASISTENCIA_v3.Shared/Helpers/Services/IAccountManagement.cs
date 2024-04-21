@@ -1,4 +1,5 @@
 ﻿using NOAM_ASISTENCIA_v3.Shared.Contracts.Authentication;
+using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
 
 namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 
@@ -20,7 +21,7 @@ public interface IAccountManagement
     /// <param name="email">User's email.</param>
     /// <param name="password">User's password.</param>
     /// <returns>The result of the request serialized to <see cref="FormResult"/>.</returns>
-    public Task LoginAsync(string email, string password);
+    public Task LoginAsync(LoginRequest loginRequest);
     /// <summary>
     /// Log out the logged in user.
     /// </summary>

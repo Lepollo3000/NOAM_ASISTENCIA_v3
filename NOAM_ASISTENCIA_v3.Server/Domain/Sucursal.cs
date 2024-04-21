@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NOAM_ASISTENCIA_v3.Server.Data.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,6 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 public readonly record struct SucursalId(int Value);
+
+public class SucursalConverter() : ValueConverter<SucursalId, int>(id => id.Value, intValue => new SucursalId(intValue)) { }
 
 [PrimaryKey(nameof(Id))]
 public class Sucursal : Entidad

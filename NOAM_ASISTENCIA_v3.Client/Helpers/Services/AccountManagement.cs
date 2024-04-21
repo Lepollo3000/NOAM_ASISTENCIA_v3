@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using NOAM_ASISTENCIA_v3.Shared.Contracts.Authentication;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 using System.Net.Http.Headers;
@@ -25,33 +26,33 @@ public class AccountManagement(HttpClient httpClient, ILocalStorageService local
         }
     }
 
-    public async Task LoginAsync(string email, string password)
+    public async Task LoginAsync(LoginRequest loginRequest)
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("accounts/login",
-            new LoginRequest { Username = email, Password = password, RememberMe = true });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("accounts/login", loginRequest);
 
         if (response.IsSuccessStatusCode)
         {
             LoginResponse result = await response.Content.ReadFromJsonAsync<LoginResponse>() ?? new(string.Empty);
 
-            await _localStorageService.SetItemAsync("token", result.Token);
-            await _authenticationStateProvider.GetAuthenticationStateAsync();
-
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
+
+            await ((CustomAutenticationStateProvider)_authenticationStateProvider).UpdateAuthenticationState(result.Token);
         }
     }
 
     public async Task LogoutAsync()
     {
         await _localStorageService.RemoveItemAsync("token");
-        await _authenticationStateProvider.GetAuthenticationStateAsync();
 
         _httpClient.DefaultRequestHeaders.Authorization = null;
+
+        await ((CustomAutenticationStateProvider)_authenticationStateProvider).UpdateAuthenticationState();
     }
 
     public async Task<bool> CheckAuthenticatedAsync()
     {
-        AuthenticationState authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        AuthenticationState authenticationState = await
+            ((CustomAutenticationStateProvider)_authenticationStateProvider).GetAuthenticationStateAsync();
 
         return authenticationState.User.Identity?.IsAuthenticated ?? false;
     }

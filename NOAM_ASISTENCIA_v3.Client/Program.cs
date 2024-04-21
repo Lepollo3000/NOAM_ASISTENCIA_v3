@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 using NOAM_ASISTENCIA_v3.Client;
 using NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
@@ -12,16 +13,16 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri($"{builder.HostEnvironment.BaseAddress}api/") });
+
 builder.Services.AddScoped<IAccountManagement, AccountManagement>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAutenticationStateProvider>();
-//builder.Services.AddScoped<CookieHandler>();
-//builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
-//builder.Services.AddScoped(sp => (IAccountManagement)sp.GetRequiredService<AuthenticationStateProvider>());
 
-builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.*", LogLevel.None);
-
+builder.Services.AddOptions();
+builder.Services.AddMudServices();
+builder.Services.AddApiAuthorization();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.*", LogLevel.None);
 
 await builder.Build().RunAsync();

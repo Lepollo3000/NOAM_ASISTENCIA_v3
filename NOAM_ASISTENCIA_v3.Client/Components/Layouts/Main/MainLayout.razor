@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+
+<MudLayout>
+    <MudAppBar Elevation="5">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+
+        <MudSpacer />
+
+        <LoginDisplay />
+    </MudAppBar>
+
+    <MudDrawer Elevation="5" @bind-Open="DrawerIsOpened" ClipMode="DrawerClipMode.Never" Variant="DrawerVariant.Responsive">
+        <MainDrawerMenu />
+    </MudDrawer>
+
+    <CascadingValue Value="this">
+        <MudMainContent>
+            <MudContainer Class="py-md-3 p-2">
+                <MudBreadcrumbs Class="mb-2" Items="BreadcrumbItems" />
+
+                <MudCard Class="p-md-3 p-2" Style="min-height: 80vh;">
+                    <MudCardContent>
+                        @Body
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        </MudMainContent>
+    </CascadingValue>
+</MudLayout>
+
+@code {
+    private bool DrawerIsOpened { get; set; } = true;
+    private List<BreadcrumbItem> BreadcrumbItems { get; set; } = new() { new("Inicio", href: "") };
+
+    public async Task SetBreadcrumb(List<BreadcrumbItem> breadcrumb)
+    {
+        BreadcrumbItems = breadcrumb;
+
+        StateHasChanged();
+
+        await Task.CompletedTask;
+    }
+
+    private void ToggleDrawer() => DrawerIsOpened = !DrawerIsOpened;
+}

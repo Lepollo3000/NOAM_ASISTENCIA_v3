@@ -1,6 +1,8 @@
 ﻿@page "/login"
+@layout AuthLayout
 
 @inject IAccountManagement AccountManager
+@inject NavigationManager NavigationManager
 
 <PageTitle>Login</PageTitle>
 
@@ -65,6 +67,8 @@
             return;
         }
 
-        await AccountManager.LoginAsync(email, password);
+        await AccountManager.LoginAsync(new() { Username = email, Password = password, RememberMe = true });
+
+        NavigationManager.NavigateTo("/");
     }
 }

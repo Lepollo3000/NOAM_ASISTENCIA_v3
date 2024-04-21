@@ -1,56 +1,86 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
-using System.Net.Http.Headers;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors.User;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 
-public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorageService, IAuthenticationService authenticationService)
-: AuthenticationStateProvider, IDisposable
+public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorageService) : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly ILocalStorageService _localStorageService = localStorageService;
-    private readonly IAuthenticationService _authenticationService = authenticationService;
+    private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        string? token = await _localStorageService.GetItemAsync<string>("token");
-
-        ClaimsIdentity identity;
-
-        if (string.IsNullOrWhiteSpace(token)) { identity = new(); }
-        else { identity = new(ParseClaimsFromJwt(token), "jwt"); }
-
-        ClaimsPrincipal user = new(identity);
-        AuthenticationState state = new(user);
-
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-
-        NotifyAuthenticationStateChanged(Task.FromResult(state));
-
-        return state;
-    }
-
-    public static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
-    {
-        var payload = jwt.Split('.')[1];
-        var jsonBytes = ParseBase64WithoutPadding(payload);
-        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-
-        return keyValuePairs?.Select(kvp => new Claim(kvp.Key, kvp.ToString() ?? string.Empty)) ?? [];
-    }
-
-    private static byte[] ParseBase64WithoutPadding(string base64)
-    {
-        switch (base64.Length % 4)
+        try
         {
-            case 2: base64 += "=="; break;
-            case 3: base64 += "="; break;
+            string? savedToken = await _localStorageService.GetItemAsync<string>("token");
+
+            if (string.IsNullOrEmpty(savedToken))
+            {
+                return await Task.FromResult(new AuthenticationState(_anonymous));
+            }
+
+            CustomUserClaims userClaims = DecryptToken(savedToken);
+
+            if (userClaims == null)
+            {
+                return await Task.FromResult(new AuthenticationState(_anonymous));
+            }
+
+            ClaimsPrincipal claimsPrincipal = SetClaimsPrincipal(userClaims);
+
+            return await Task.FromResult(new AuthenticationState(claimsPrincipal));
         }
-        return Convert.FromBase64String(base64);
+        catch
+        {
+            return await Task.FromResult(new AuthenticationState(_anonymous));
+        }
     }
 
-    public void Dispose() => AuthenticationStateChanged -= NotifyAuthenticationStateChanged;
+    public async Task UpdateAuthenticationState(string? tokenString = null)
+    {
+        ClaimsPrincipal claimsPrincipal = new();
+
+        if (!string.IsNullOrEmpty(tokenString))
+        {
+            await _localStorageService.SetItemAsync("token", tokenString);
+
+            CustomUserClaims userClaims = DecryptToken(tokenString);
+            claimsPrincipal = SetClaimsPrincipal(userClaims);
+        }
+        else
+        {
+            await _localStorageService.RemoveItemAsync("token");
+        }
+
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+    }
+
+    public static ClaimsPrincipal SetClaimsPrincipal(CustomUserClaims claims)
+    {
+        if (claims.Email is null) { return new(); }
+
+        return new(new ClaimsIdentity(
+            [
+                new(ClaimTypes.Name, claims.Name),
+                new(ClaimTypes.Email, claims.Email)
+            ],
+            "JwtAuth"));
+    }
+
+    private static CustomUserClaims DecryptToken(string tokenString)
+    {
+        if (string.IsNullOrEmpty(tokenString)) { return new(); }
+
+        JwtSecurityTokenHandler handler = new();
+        JwtSecurityToken token = handler.ReadJwtToken(tokenString);
+
+        Claim? name = token.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name);
+        Claim? email = token.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email);
+
+        return new(name?.Value ?? string.Empty, email?.Value ?? string.Empty);
+    }
 }
