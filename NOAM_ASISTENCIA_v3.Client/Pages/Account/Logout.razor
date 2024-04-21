@@ -1,23 +1,18 @@
-﻿@page "/logout"
+﻿@page "/account/logout"
+@layout AuthenticationLayout
+
+@attribute [Authorize]
 
 @inject IAccountManagement AccountManager
+@inject NavigationManager NavigationManager
 
-<PageTitle>Logout</PageTitle>
+<PageTitle>Cierre de sesión</PageTitle>
 
 <h1>Logout</h1>
 
-<AuthorizeView @ref="authView">
-    <Authorized>
-        <div class="alert alert-info">Logging you out...</div>
-    </Authorized>
-    <NotAuthorized>
-        <div class="alert alert-success">You're logged out. <a href="/login">Log in.</a></div>
-    </NotAuthorized>
-</AuthorizeView>
+<div class="alert alert-info">Cerrando sesión. Por favor espere...</div>
 
 @code {
-    private AuthorizeView? authView;
-
     protected override async Task OnInitializedAsync()
     {
         if (await AccountManager.CheckAuthenticatedAsync())
@@ -26,5 +21,7 @@
         }
 
         await base.OnInitializedAsync();
+
+        NavigationManager.NavigateTo("/");
     }
 }

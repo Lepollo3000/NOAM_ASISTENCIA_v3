@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -19,9 +20,11 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAutenticationState
 
 builder.Services.AddOptions();
 builder.Services.AddMudServices();
+builder.Services.AddSweetAlert2();
 builder.Services.AddApiAuthorization();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddCascadingAuthenticationState();
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.*", LogLevel.None);
 

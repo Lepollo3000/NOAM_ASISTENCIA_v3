@@ -1,6 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using NOAM_ASISTENCIA_v3.Shared.Contracts.Authentication;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 using System.Net.Http.Headers;
@@ -42,8 +41,6 @@ public class AccountManagement(HttpClient httpClient, ILocalStorageService local
 
     public async Task LogoutAsync()
     {
-        await _localStorageService.RemoveItemAsync("token");
-
         _httpClient.DefaultRequestHeaders.Authorization = null;
 
         await ((CustomAutenticationStateProvider)_authenticationStateProvider).UpdateAuthenticationState();

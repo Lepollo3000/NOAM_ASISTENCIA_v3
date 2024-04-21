@@ -14,7 +14,7 @@ namespace NOAM_ASISTENCIA_v3.Server.Features.Accounts;
 
 public static class Register
 {
-    public class Query : CreateUserDTO, IRequest<Result> { }
+    public class Query : RegisterRequest, IRequest<Result> { }
 
     public class Validator : AbstractValidator<Query>
     {
@@ -99,7 +99,7 @@ public class RegisterEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.GetAccountsRouteGroup()
-            .MapPost("register", async ([FromBody] CreateUserDTO request, IMediator mediator) =>
+            .MapPost("register", async ([FromBody] RegisterRequest request, IMediator mediator) =>
             {
                 var query = request.Adapt<Register.Query>();
                 var result = await mediator.Send(query);

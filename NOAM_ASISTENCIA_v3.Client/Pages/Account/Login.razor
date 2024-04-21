@@ -1,74 +1,75 @@
-﻿@page "/login"
-@layout AuthLayout
+﻿@page "/account/login"
+@layout AuthenticationLayout
 
 @inject IAccountManagement AccountManager
 @inject NavigationManager NavigationManager
 
 <PageTitle>Login</PageTitle>
 
-<h1>Login</h1>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="alert alert-success">You're logged in as @context.User.Identity?.Name.</div>
-    </Authorized>
-    <NotAuthorized>
-        @if (errors)
-        {
-            @foreach (var error in errorList)
-            {
-                <div class="alert alert-danger">@error</div>
-            }
-        }
-        <div class="flex-outer">
-            <div>
-                <label for="email">
-                    Email:
-                </label>
-                <input required id="email" name="emailInput" placeholder="Enter your email address" type="email" @bind-value="email" />
-            </div>
-            <div>
-                <label for="password">
-                    Password:
-                </label>
-                <input required id="password" name="passwordInput" placeholder="Enter your password" type="password" @bind-value="password" />
-            </div>
-            <div>
-                <button class="btn btn-primary" @onclick="DoLoginAsync">Login</button>
-            </div>
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="h3">Inicio de Sesión</h1>
 
-@code {
-    private bool success, errors;
-    private string email = string.Empty;
-    private string password = string.Empty;
-    private string[] errorList = [];
+        <AuthorizeView>
+            <Authorized>
+                <div class="alert alert-success">Tiene su sesión iniciada como: @(context.User.Identity?.Name).</div>
+            </Authorized>
 
-    public async Task DoLoginAsync()
-    {
-        success = errors = false;
-        errorList = [];
+            <NotAuthorized>
+                <MudForm Model="@request" @ref="@form" Validation="@requestValidator.Validation" ValidationDelay="100">
+                    <div class="input-group justify-content-center mb-3">
+                        <AppTextInput Label="@request.GetDisplayName(model => model.Username)"
+                                      Description="@request.GetDisplayDescription(model => model.Username)"
+                                      @bind-Value="@request.Username" For="@(() => request.Username)" />
+                    </div>
 
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            errors = true;
-            errorList = ["Email is required."];
+                    <div class="input-group justify-content-center mb-3">
+                        <AppPasswordInput Label="@request.GetDisplayName(model => model.Password)"
+                                          Description="@request.GetDisplayDescription(model => model.Password)"
+                                          @bind-Value="@request.Password" For="@(() => request.Password)" />
+                    </div>
 
-            return;
-        }
+                    <hr />
 
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            errors = true;
-            errorList = ["Password is required."];
+                    <div class="input-group justify-content-between mb-3">
+                        <MudButton Href="/" Color="Color.Secondary"
+                                   Variant="Variant.Filled" StartIcon="fa fa-angle-left">
+                            Regresar
+                        </MudButton>
 
-            return;
-        }
+                        <MudButton OnClick="@SubmitAsync" Color="Color.Primary"
+                                   Variant="Variant.Filled" EndIcon="fa fa-check">
+                            Iniciar Sesión
+                        </MudButton>
+                    </div>
+                </MudForm>
 
-        await AccountManager.LoginAsync(new() { Username = email, Password = password, RememberMe = true });
-
-        NavigationManager.NavigateTo("/");
-    }
-}
+                @if (errors)
+                {
+                    @foreach (var error in errorList)
+                    {
+                        <div class="alert alert-danger">@error</div>
+                    }
+                }
+                <div class="flex-outer">
+                    <div>
+                        <label for="email">
+                            Email:
+                        </label>
+                        <input required id="email" name="emailInput" placeholder="Enter your email address" type="email" @bind-value="email" />
+                    </div>
+                    <div>
+                        <label for="password">
+                            Password:
+                        </label>
+                        <input required id="password" name="passwordInput" placeholder="Enter your password" type="password" @bind-value="password" />
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" @onclick="SubmitAsync">Login</button>
+                    </div>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>

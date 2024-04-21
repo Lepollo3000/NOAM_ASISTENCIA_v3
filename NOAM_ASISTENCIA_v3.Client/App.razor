@@ -1,42 +1,38 @@
-﻿<CascadingBreadcrumbService>
-    <CascadingAuthenticationState>
-        <Router AppAssembly="@typeof(App).Assembly">
-            <Found Context="routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                    <Authorizing>
-                        <p class="alert alert-info" role="alert">
-                            Autorización en proceso. Por favor espere...
-                        </p>
-                    </Authorizing>
+﻿<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <Authorizing>
+                <p class="alert alert-info" role="alert">
+                    Autorización en proceso. Por favor espere...
+                </p>
+            </Authorizing>
 
-                    <NotAuthorized>
-                        @if (context.User.Identity?.IsAuthenticated != true)
-                        {
-                            <RedirectToLogin />
-                        }
-                        else
-                        {
-                            <p role="alert">
-                                No se está autorizado para acceder a este recurso. Inicie sesión con otra cuenta o
-                                contacte a un administrador.
-                            </p>
-                        }
-                    </NotAuthorized>
-                </AuthorizeRouteView>
+            <NotAuthorized>
+                @if (context.User.Identity?.IsAuthenticated != true)
+                {
+                    <RedirectToLogin />
+                }
+                else
+                {
+                    <p role="alert">
+                        No se está autorizado para acceder a este recurso. Inicie sesión con otra cuenta o
+                        contacte a un administrador.
+                    </p>
+                }
+            </NotAuthorized>
+        </AuthorizeRouteView>
 
-                <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-            </Found>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
 
-            <NotFound>
-                <PageTitle>No encontrado</PageTitle>
+    <NotFound>
+        <PageTitle>No encontrado</PageTitle>
 
-                <LayoutView Layout="@typeof(MainLayout)">
-                    <p role="alert">Lo sentimos, no se encontró ningún recurso en esta dirección.</p>
-                </LayoutView>
-            </NotFound>
-        </Router>
-    </CascadingAuthenticationState>
-</CascadingBreadcrumbService>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Lo sentimos, no se encontró ningún recurso en esta dirección.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
 
 <MudThemeProvider Theme="CurrentTheme" />
 
