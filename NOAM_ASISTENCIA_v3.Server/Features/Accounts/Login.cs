@@ -40,7 +40,10 @@ public static class Login
                 }
 
                 IEnumerable<string> roles = await userManager.GetRolesAsync(user);
-                List<Claim> claims = [new Claim(ClaimTypes.Name, request.Username)];
+                List<Claim> claims = [
+                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                ];
 
                 foreach (var role in roles)
                 {

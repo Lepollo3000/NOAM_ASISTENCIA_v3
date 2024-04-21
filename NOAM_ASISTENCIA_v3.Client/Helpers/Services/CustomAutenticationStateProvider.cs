@@ -1,6 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors.User;
+using NOAM_ASISTENCIA_v3.Client.Helpers.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -63,12 +63,17 @@ public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStora
     {
         if (claims.Email is null) { return new(); }
 
-        return new(new ClaimsIdentity(
-            [
-                new(ClaimTypes.Name, claims.Name),
-                new(ClaimTypes.Email, claims.Email)
-            ],
-            "JwtAuth"));
+        List<Claim> claimList = [
+            new(ClaimTypes.Name, claims.Name),
+            new(ClaimTypes.Email, claims.Email)
+        ];
+
+        foreach (string claim in claims.Roles)
+        {
+            claimList.Add(new Claim(ClaimTypes.Role, claim));
+        }
+
+        return new(new ClaimsIdentity(claimList, "JwtAuth"));
     }
 
     private static CustomUserClaims DecryptToken(string tokenString)
@@ -80,7 +85,8 @@ public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStora
 
         Claim? name = token.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name);
         Claim? email = token.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email);
+        List<Claim> roles = token.Claims.Where(claim => claim.Type == ClaimTypes.Role).ToList();
 
-        return new(name?.Value ?? string.Empty, email?.Value ?? string.Empty);
+        return new(name?.Value ?? string.Empty, email?.Value ?? string.Empty, roles.Select(claim => claim.Value).ToArray());
     }
 }
