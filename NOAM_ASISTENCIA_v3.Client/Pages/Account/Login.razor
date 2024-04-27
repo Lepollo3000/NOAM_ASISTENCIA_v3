@@ -17,17 +17,26 @@
             </Authorized>
 
             <NotAuthorized>
-                <MudForm Model="@request" @ref="@form" Validation="@requestValidator.Validation" ValidationDelay="100">
+                <MudForm @ref="@form" Model="@request" Validation="@requestValidator.Validation">
                     <div class="input-group justify-content-center mb-3">
-                        <AppTextInput Label="@request.GetDisplayName(model => model.Username)"
-                                      Description="@request.GetDisplayDescription(model => model.Username)"
-                                      @bind-Value="@request.Username" For="@(() => request.Username)" />
+                        <MudTextField @bind-Value="@request.Username" For="@(() => request.Username)"
+                                      Label="@request.GetDisplayName(model => model.Username)"
+                                      HelperText="@request.GetDisplayDescription(model => model.Username)"
+                                      AdornmentColor="@TextInputDefaults.Color" Variant="@TextInputDefaults.Variant"
+                                      InputType="@TextInputDefaults.InputType" Immediate="@TextInputDefaults.Inmediate" />
                     </div>
 
                     <div class="input-group justify-content-center mb-3">
-                        <AppPasswordInput Label="@request.GetDisplayName(model => model.Password)"
-                                          Description="@request.GetDisplayDescription(model => model.Password)"
-                                          @bind-Value="@request.Password" For="@(() => request.Password)" />
+                        <MudTextField @bind-Value="@request.Password" For="@(() => request.Password)"
+                                      Label="@request.GetDisplayName(model => model.Password)"
+                                      HelperText="@request.GetDisplayDescription(model => model.Password)"
+                                      AdornmentColor="@passwordConfiguration.Color"
+                                      Variant="@passwordConfiguration.Variant"
+                                      InputType="@passwordConfiguration.InputType"
+                                      Immediate="@passwordConfiguration.Inmediate"
+                                      Adornment="@passwordConfiguration.Adornment"
+                                      AdornmentIcon="@passwordConfiguration.Icon"
+                                      OnAdornmentClick="@passwordConfiguration.FieldIconPressed" />
                     </div>
 
                     <hr />
@@ -38,37 +47,12 @@
                             Regresar
                         </MudButton>
 
-                        <MudButton OnClick="@SubmitAsync" Color="Color.Primary"
+                        <MudButton OnClick="@(async () => await SubmitAsync())" Color="Color.Primary"
                                    Variant="Variant.Filled" EndIcon="fa fa-check">
                             Iniciar Sesión
                         </MudButton>
                     </div>
                 </MudForm>
-
-                @if (errors)
-                {
-                    @foreach (var error in errorList)
-                    {
-                        <div class="alert alert-danger">@error</div>
-                    }
-                }
-                <div class="flex-outer">
-                    <div>
-                        <label for="email">
-                            Email:
-                        </label>
-                        <input required id="email" name="emailInput" placeholder="Enter your email address" type="email" @bind-value="email" />
-                    </div>
-                    <div>
-                        <label for="password">
-                            Password:
-                        </label>
-                        <input required id="password" name="passwordInput" placeholder="Enter your password" type="password" @bind-value="password" />
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" @onclick="SubmitAsync">Login</button>
-                    </div>
-                </div>
             </NotAuthorized>
         </AuthorizeView>
     </div>

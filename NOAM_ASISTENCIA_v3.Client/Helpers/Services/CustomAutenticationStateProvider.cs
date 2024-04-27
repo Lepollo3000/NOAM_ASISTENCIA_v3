@@ -42,7 +42,7 @@ public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStora
 
     public async Task UpdateAuthenticationState(string? tokenString = null)
     {
-        ClaimsPrincipal claimsPrincipal = new();
+        ClaimsPrincipal claimsPrincipal = _anonymous;
 
         if (!string.IsNullOrEmpty(tokenString))
         {

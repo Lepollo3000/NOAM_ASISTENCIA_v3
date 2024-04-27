@@ -10,7 +10,15 @@
 
 <h1>Logout</h1>
 
-<div class="alert alert-info">Cerrando sesión. Por favor espere...</div>
+<AuthorizeView>
+    <Authorized>
+        <div class="alert alert-info">Cerrando sesión. Por favor espere...</div>
+    </Authorized>
+
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -19,9 +27,5 @@
         {
             await AccountManager.LogoutAsync();
         }
-
-        await base.OnInitializedAsync();
-
-        NavigationManager.NavigateTo("/");
     }
 }

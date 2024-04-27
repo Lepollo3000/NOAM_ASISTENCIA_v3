@@ -3,44 +3,43 @@ using FluentValidation.Results;
 using MudBlazor;
 using NOAM_ASISTENCIA_v3.Client.Helpers.MudBlazor;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+using static MudBlazor.CategoryTypes;
 
 namespace NOAM_ASISTENCIA_v3.Client.Pages.Account;
 
 public partial class Login
 {
-    private MudForm form = new();
+    private MudForm form;
     private LoginRequest request = new();
     private Validator requestValidator = new();
+    private PasswordInputConfigurations passwordConfiguration = new();
 
-    private bool success, errors;
-    private string email = string.Empty;
-    private string password = string.Empty;
-    private string[] errorList = [];
+    public void FieldIconPressed(PasswordInputConfigurations configurations)
+    {
+        if (configurations.closedEyeIcon)
+        {
+            showIcon = false;
+            Icon = ShowIcon;
+            InputType = InputType.Password;
+        }
+        else
+        {
+            showIcon = true;
+            Icon = HideIcon;
+            InputType = InputType.Text;
+        }
+    }
 
     public async Task SubmitAsync()
     {
-        success = errors = false;
-        errorList = [];
+        await form.Validate();
 
-        if (string.IsNullOrWhiteSpace(email))
+        if (form.IsValid)
         {
-            errors = true;
-            errorList = ["Email is required."];
+            await AccountManager.LoginAsync(request);
 
-            return;
+            NavigationManager.NavigateTo("/");
         }
-
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            errors = true;
-            errorList = ["Password is required."];
-
-            return;
-        }
-
-        await AccountManager.LoginAsync(new() { Username = email, Password = password, RememberMe = true });
-
-        NavigationManager.NavigateTo("/");
     }
 
     private class Validator : AbstractValidator<LoginRequest>
@@ -50,13 +49,11 @@ public partial class Login
         public Validator()
         {
             RuleFor(request => request.Username)
-                .NotNull()
-                .NotEmpty()
+                .Must(request => !string.IsNullOrEmpty(request))
                 .WithMessage(_mensajeCampoRequerido);
 
             RuleFor(request => request.Password)
-                .NotNull()
-                .NotEmpty()
+                .Must(request => !string.IsNullOrEmpty(request))
                 .WithMessage(_mensajeCampoRequerido);
         }
 
