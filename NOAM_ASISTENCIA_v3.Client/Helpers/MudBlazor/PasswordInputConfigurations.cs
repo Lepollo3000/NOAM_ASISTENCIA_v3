@@ -12,7 +12,7 @@ public class PasswordInputConfigurations
     public Color Color { get; } = TextInputDefaults.Color;
     public Variant Variant { get; } = TextInputDefaults.Variant;
     public Adornment Adornment { get; } = Adornment.End;
-    public InputType InputType { get; private set; } = InputType.Password;
+    public InputType InputType { get; set; } = InputType.Password;
     public string Icon { get; private set; } = openedEyeIcon;
 
     public void FieldIconPressed()

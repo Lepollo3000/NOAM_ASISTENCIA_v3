@@ -3,32 +3,15 @@ using FluentValidation.Results;
 using MudBlazor;
 using NOAM_ASISTENCIA_v3.Client.Helpers.MudBlazor;
 using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
-using static MudBlazor.CategoryTypes;
 
 namespace NOAM_ASISTENCIA_v3.Client.Pages.Account;
 
 public partial class Login
 {
-    private MudForm form;
+    private MudForm form = new();
     private LoginRequest request = new();
     private Validator requestValidator = new();
     private PasswordInputConfigurations passwordConfiguration = new();
-
-    public void FieldIconPressed(PasswordInputConfigurations configurations)
-    {
-        if (configurations.closedEyeIcon)
-        {
-            showIcon = false;
-            Icon = ShowIcon;
-            InputType = InputType.Password;
-        }
-        else
-        {
-            showIcon = true;
-            Icon = HideIcon;
-            InputType = InputType.Text;
-        }
-    }
 
     public async Task SubmitAsync()
     {
