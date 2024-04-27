@@ -22,8 +22,10 @@
                         <MudTextField @bind-Value="@request.Username" For="@(() => request.Username)"
                                       Label="@request.GetDisplayName(model => model.Username)"
                                       HelperText="@request.GetDisplayDescription(model => model.Username)"
-                                      AdornmentColor="@TextInputDefaults.Color" Variant="@TextInputDefaults.Variant"
-                                      InputType="@TextInputDefaults.InputType" Immediate="@TextInputDefaults.Inmediate" />
+                                      AdornmentColor="@TextInputDefaults.Color"
+                                      Variant="@TextInputDefaults.Variant"
+                                      InputType="@TextInputDefaults.InputType"
+                                      Immediate="@TextInputDefaults.Inmediate" />
                     </div>
 
                     <div class="input-group justify-content-center mb-3">
