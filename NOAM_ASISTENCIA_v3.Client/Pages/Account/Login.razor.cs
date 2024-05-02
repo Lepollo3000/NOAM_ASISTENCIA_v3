@@ -9,9 +9,9 @@ namespace NOAM_ASISTENCIA_v3.Client.Pages.Account;
 public partial class Login
 {
     private MudForm form = new();
-    private LoginRequest request = new();
-    private Validator requestValidator = new();
-    private PasswordInputConfigurations passwordConfiguration = new();
+    private readonly LoginRequest _request = new();
+    private readonly Validator _requestValidator = new();
+    private readonly PasswordInputConfigurations _passwordConfiguration = new();
 
     public async Task SubmitAsync()
     {
@@ -19,7 +19,7 @@ public partial class Login
 
         if (form.IsValid)
         {
-            await AccountManager.LoginAsync(request);
+            await AccountManager.LoginAsync(_request);
 
             NavigationManager.NavigateTo("/");
         }

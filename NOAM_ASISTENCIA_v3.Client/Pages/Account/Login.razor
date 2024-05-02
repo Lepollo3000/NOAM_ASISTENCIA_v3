@@ -6,9 +6,8 @@
 
 <PageTitle>Login</PageTitle>
 
-
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <h1 class="h3">Inicio de Sesión</h1>
 
         <AuthorizeView>
@@ -17,11 +16,11 @@
             </Authorized>
 
             <NotAuthorized>
-                <MudForm @ref="@form" Model="@request" Validation="@requestValidator.Validation">
+                <MudForm @ref="@form" Model="@_request" Validation="@_requestValidator.Validation">
                     <div class="input-group justify-content-center mb-3">
-                        <MudTextField @bind-Value="@request.Username" For="@(() => request.Username)"
-                                      Label="@request.GetDisplayName(model => model.Username)"
-                                      HelperText="@request.GetDisplayDescription(model => model.Username)"
+                        <MudTextField @bind-Value="@_request.Username" For="@(() => _request.Username)"
+                                      Label="@_request.GetDisplayName(model => model.Username)"
+                                      HelperText="@_request.GetDisplayDescription(model => model.Username)"
                                       AdornmentColor="@TextInputDefaults.Color"
                                       Variant="@TextInputDefaults.Variant"
                                       InputType="@TextInputDefaults.InputType"
@@ -29,26 +28,21 @@
                     </div>
 
                     <div class="input-group justify-content-center mb-3">
-                        <MudTextField @bind-Value="@request.Password" For="@(() => request.Password)"
-                                      Label="@request.GetDisplayName(model => model.Password)"
-                                      HelperText="@request.GetDisplayDescription(model => model.Password)"
-                                      AdornmentColor="@passwordConfiguration.Color"
-                                      Variant="@passwordConfiguration.Variant"
-                                      InputType="@passwordConfiguration.InputType"
-                                      Immediate="@passwordConfiguration.Inmediate"
-                                      Adornment="@passwordConfiguration.Adornment"
-                                      AdornmentIcon="@passwordConfiguration.Icon"
-                                      OnAdornmentClick="@passwordConfiguration.FieldIconPressed" />
+                        <MudTextField @bind-Value="@_request.Password" For="@(() => _request.Password)"
+                                      Label="@_request.GetDisplayName(model => model.Password)"
+                                      HelperText="@_request.GetDisplayDescription(model => model.Password)"
+                                      AdornmentColor="@_passwordConfiguration.Color"
+                                      Variant="@_passwordConfiguration.Variant"
+                                      InputType="@_passwordConfiguration.InputType"
+                                      Immediate="@_passwordConfiguration.Inmediate"
+                                      Adornment="@_passwordConfiguration.Adornment"
+                                      AdornmentIcon="@_passwordConfiguration.Icon"
+                                      OnAdornmentClick="@_passwordConfiguration.FieldIconPressed" />
                     </div>
 
                     <hr />
 
-                    <div class="input-group justify-content-between mb-3">
-                        <MudButton Href="/" Color="Color.Secondary"
-                                   Variant="Variant.Filled" StartIcon="fa fa-angle-left">
-                            Regresar
-                        </MudButton>
-
+                    <div class="input-group justify-content-end mb-3">
                         <MudButton OnClick="@(async () => await SubmitAsync())" Color="Color.Primary"
                                    Variant="Variant.Filled" EndIcon="fa fa-check">
                             Iniciar Sesión
