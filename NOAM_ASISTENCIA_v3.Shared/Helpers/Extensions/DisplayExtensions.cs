@@ -6,6 +6,10 @@ namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Extensions;
 
 public static class DisplayExtensions
 {
+    /// <summary>
+    /// Obtiene el nombre del atributo [Display] adjuntado a una propiedad dada.
+    /// </summary>
+    /// <returns></returns>
     public static string GetDisplayName<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression)
     {
         DisplayAttribute? attribute = model.GetDisplayAttribute(expression);
@@ -13,6 +17,10 @@ public static class DisplayExtensions
         return attribute?.Name ?? string.Empty;
     }
 
+    /// <summary>
+    /// Obtiene la descripción del atributo [Display] adjuntado a una propiedad dada.
+    /// </summary>
+    /// <returns></returns>
     public static string GetDisplayDescription<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression)
     {
         DisplayAttribute? attribute = model.GetDisplayAttribute(expression);
@@ -20,6 +28,10 @@ public static class DisplayExtensions
         return attribute?.Description ?? string.Empty;
     }
 
+    /// <summary>
+    /// Obtiene el atributo [Display] adjuntado a una propiedad dada
+    /// </summary>
+    /// <returns></returns>
     private static DisplayAttribute? GetDisplayAttribute<TModel, TProperty>(this TModel _, Expression<Func<TModel, TProperty>> expression)
     {
         Type type = typeof(TModel);
@@ -36,11 +48,9 @@ public static class DisplayExtensions
 
         if (attribute == null)
         {
-            MetadataTypeAttribute? metadataType = type
+            if (type
                 .GetCustomAttributes(typeof(MetadataTypeAttribute), true)
-                .FirstOrDefault() as MetadataTypeAttribute;
-
-            if (metadataType != null)
+                .FirstOrDefault() is MetadataTypeAttribute metadataType)
             {
                 var property = metadataType.MetadataClassType.GetProperty(propertyName);
 

@@ -3,31 +3,30 @@
 namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 
 /// <summary>
-/// Account management services.
+/// Servicio para manejo de lógica de usuarios
 /// </summary>
-public interface IAccountManagement
+public interface IAccountService
 {
     /// <summary>
-    /// Registration service.
+    /// Registrar usuario.
     /// </summary>
     /// <param name="email">User's email.</param>
     /// <param name="password">User's password.</param>
     /// <returns></returns>
     public Task RegisterAsync(string email, string password);
     /// <summary>
-    /// Login service.
+    /// Inicio de sesión.
     /// </summary>
-    /// <param name="email">User's email.</param>
-    /// <param name="password">User's password.</param>
+    /// <param name="loginRequest">La consulta para el inicio de sesión</param>
     /// <returns></returns>
     public Task LoginAsync(LoginRequest loginRequest);
     /// <summary>
-    /// Log out the logged in user.
+    /// Cierre de sesión.
     /// </summary>
-    /// <returns>The asynchronous task.</returns>
+    /// <returns></returns>
     public Task LogoutAsync();
     /// <summary>
-    /// 
+    /// Revisión de sesión
     /// </summary>
     /// <returns></returns>
     public Task<bool> CheckAuthenticatedAsync();

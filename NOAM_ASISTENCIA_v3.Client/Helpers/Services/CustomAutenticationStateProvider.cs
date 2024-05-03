@@ -6,11 +6,10 @@ using System.Security.Claims;
 
 namespace NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 
-public class CustomAutenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorageService) : AuthenticationStateProvider
+public class CustomAutenticationStateProvider(ILocalStorageService localStorageService) : AuthenticationStateProvider
 {
-    private readonly HttpClient _httpClient = httpClient;
-    private readonly ILocalStorageService _localStorageService = localStorageService;
     private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
+    private readonly ILocalStorageService _localStorageService = localStorageService;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {

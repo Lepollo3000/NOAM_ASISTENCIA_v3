@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Extensions;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
@@ -13,29 +14,31 @@ public static class EndpointResultsHelper
     /// <returns>Un resultado HTTP de tipo IResult</returns>
     public static IResult ToEndpointResult<T>(this Result<T> result)
     {
+        bool hayErrores = !result.IsSuccess
+           && result.ValidationErrors.Any();
+
         return result.IsSuccess switch
         {
-            false when result.ValidationErrors.Count > 0 =>
-                Results.BadRequest(new ProblemDetails
+            true => Results.Ok(result.Value),
+
+            false when hayErrores => Results.BadRequest(new ProblemDetails
+            {
+                Title = Errors.General.Descriptions.ErrorValidaciones.GetDisplayName(),
+                Extensions = new Dictionary<string, object?>
                 {
-                    Title = Errors.General.ErrorValidaciones,
-                    Extensions = new Dictionary<string, object?>
-                    {
-                        { "errors", result.ValidationErrors.Select(model => model.ErrorMessage) }
-                    }
-                }),
-            true =>
-                Results.Ok(result.Value),
-            _ =>
-                Results.Problem(new ProblemDetails
+                    { "errors", result.ValidationErrors.Select(model => model.ErrorMessage) }
+                }
+            }),
+
+            _ => Results.Problem(new ProblemDetails
+            {
+                Title = Errors.General.Descriptions.ErrorInesperado.GetDisplayName(),
+                Status = StatusCodes.Status500InternalServerError,
+                Extensions = new Dictionary<string, object?>
                 {
-                    Title = Errors.General.ErrorInesperado,
-                    Status = StatusCodes.Status500InternalServerError,
-                    Extensions = new Dictionary<string, object?>
-                    {
-                        { "errors", result.Errors }
-                    }
-                })
+                    { "errors", result.Errors }
+                }
+            })
         };
     }
 }

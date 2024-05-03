@@ -7,7 +7,7 @@ using System.Net.Http.Json;
 
 namespace NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 
-public class AccountManagement(HttpClient httpClient, ILocalStorageService localStorageService, AuthenticationStateProvider authenticationStateProvider) : IAccountManagement
+public class AccountService(HttpClient httpClient, ILocalStorageService localStorageService, AuthenticationStateProvider authenticationStateProvider) : IAccountService
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly ILocalStorageService _localStorageService = localStorageService;
