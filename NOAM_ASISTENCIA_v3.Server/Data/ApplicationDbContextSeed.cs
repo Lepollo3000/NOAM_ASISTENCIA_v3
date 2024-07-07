@@ -46,7 +46,7 @@ public class ApplicationDbContextSeed : IHostedService
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error al migrar la base de datos.");
+            _logger.LogError("Error al migrar la base de datos. {ex}", ex);
 
             return false;
         }

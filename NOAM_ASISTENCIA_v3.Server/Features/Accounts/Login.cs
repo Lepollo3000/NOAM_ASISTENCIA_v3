@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Helpers;
-using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+using NOAM_ASISTENCIA_v3.Shared.Features.Accounts.Login;
 using NOAM_ASISTENCIA_v3.Shared.Helpers.Errors;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -29,14 +29,14 @@ public static class Login
 
                 if (user == null)
                 {
-                    return Errors.User.OperationErrors.CredencialesInvalidas;
+                    return Errors.Accounts.CredencialesInvalidas;
                 }
 
                 var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
                 if (!result.Succeeded)
                 {
-                    return Errors.User.OperationErrors.CredencialesInvalidas;
+                    return Errors.Accounts.CredencialesInvalidas;
                 }
 
                 IEnumerable<string> roles = await userManager.GetRolesAsync(user);

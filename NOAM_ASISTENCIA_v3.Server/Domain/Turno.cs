@@ -8,8 +8,6 @@ namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 public readonly record struct TurnoId(int Value);
 
-public class TurnoConverter() : ValueConverter<TurnoId, int>(id => id.Value, intValue => new TurnoId(intValue)) { }
-
 [PrimaryKey(nameof(Id))]
 public class Turno : Entidad
 {
@@ -21,4 +19,7 @@ public class Turno : Entidad
 
     [InverseProperty(nameof(ApplicationUser.Turno))]
     public virtual ICollection<ApplicationUser> Usuarios { get; set; } = null!;
+
+    [NotMapped]
+    public class IdConverter() : ValueConverter<TurnoId, int>(id => id.Value, intValue => new TurnoId(intValue)) { }
 }

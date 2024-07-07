@@ -2,6 +2,7 @@ using Carter;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NOAM_ASISTENCIA_v3.Client.Helpers.Services;
 using NOAM_ASISTENCIA_v3.Server.Data;
 using NOAM_ASISTENCIA_v3.Server.Domain;
 using NOAM_ASISTENCIA_v3.Server.Helpers;
@@ -20,7 +21,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager<SignInManager<ApplicationUser>>();
+    .AddSignInManager<SignInManager<ApplicationUser>>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
@@ -34,6 +36,10 @@ builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.RegisterMappingConfiguration();
 
 builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ISucursalesService, SucursalesService>();
+
+builder.Services.AddScoped<IApplicationServices, ApplicationServices>();
 
 builder.Services.AddHostedService<ApplicationDbContextSeed>();
 

@@ -12,7 +12,7 @@ using NOAM_ASISTENCIA_v3.Server.Data;
 namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240312021418_Init")]
+    [Migration("20240706170312_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -258,6 +258,9 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                     b.Property<DateTime>("FechaEntrada")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("EstaEliminado")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("FechaSalida")
                         .HasColumnType("datetime2");
 
@@ -310,6 +313,9 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("EstaEliminado")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("FechaUtcAlta")
                         .HasColumnType("datetime2");
 
@@ -351,6 +357,9 @@ namespace NOAM_ASISTENCIA_v3.Server.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("EstaEliminado")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("FechaUtcAlta")
                         .HasColumnType("datetime2");

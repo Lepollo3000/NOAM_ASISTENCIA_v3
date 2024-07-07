@@ -7,8 +7,6 @@ namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 public readonly record struct UsuarioRolId(int Value);
 
-public class ApplicationUserConverter() : ValueConverter<UsuarioRolId, int>(id => id.Value, intValue => new UsuarioRolId(intValue)) { }
-
 public class ApplicationUser : IdentityUser<UsuarioRolId>
 {
     [MaxLength(500)]
@@ -25,4 +23,7 @@ public class ApplicationUser : IdentityUser<UsuarioRolId>
 
     [InverseProperty(nameof(Asistencia.Usuario))]
     public virtual ICollection<Asistencia> Asistencias { get; set; } = null!;
+
+    [NotMapped]
+    public class IdConverter() : ValueConverter<UsuarioRolId, int>(id => id.Value, intValue => new UsuarioRolId(intValue)) { }
 }

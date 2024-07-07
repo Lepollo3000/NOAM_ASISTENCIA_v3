@@ -14,25 +14,27 @@ public class ApplicationDbContext(DbContextOptions options)
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion<ApplicationUserConverter>()
+                .HasConversion<ApplicationUser.IdConverter>()
                 .UseIdentityColumn();
         });
+
         modelBuilder.Entity<ApplicationRole>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion<ApplicationRoleConverter>()
+                .HasConversion<ApplicationRole.IdConverter>()
                 .UseIdentityColumn();
         });
 
         modelBuilder.Entity<Sucursal>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion<SucursalConverter>();
+                .HasConversion<Sucursal.IdConverter>();
         });
+
         modelBuilder.Entity<Turno>(entity =>
         {
             entity.Property(e => e.Id)
-                .HasConversion<TurnoConverter>();
+                .HasConversion<Turno.IdConverter>();
         });
     }
 }

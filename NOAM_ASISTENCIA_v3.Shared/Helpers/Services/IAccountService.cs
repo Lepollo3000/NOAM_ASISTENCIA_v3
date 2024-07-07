@@ -1,4 +1,4 @@
-﻿using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+﻿using NOAM_ASISTENCIA_v3.Shared.Features.Accounts.Login;
 
 namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Services;
 

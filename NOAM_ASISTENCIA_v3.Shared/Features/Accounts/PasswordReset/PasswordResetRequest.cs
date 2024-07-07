@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+namespace NOAM_ASISTENCIA_v3.Shared.Features.Accounts.PasswordReset;
 
 public class PasswordResetRequest
 {

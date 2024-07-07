@@ -6,7 +6,7 @@ namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Errors;
 
 public abstract partial class Errors
 {
-    public abstract class User
+    public abstract class Accounts
     {
         public enum Descriptions
         {
@@ -16,10 +16,7 @@ public abstract partial class Errors
             CredencialesInvalidas
         }
 
-        public abstract class OperationErrors
-        {
-            public static Result NoEncontrado { get; } = Result.Error(Descriptions.NoEncontrado.GetDisplayDescription());
-            public static Result CredencialesInvalidas { get; } = Result.Error(Descriptions.CredencialesInvalidas.GetDisplayDescription());
-        }
+        public static Result NoEncontrado { get; } = Result.Error(Descriptions.NoEncontrado.GetDisplayDescription());
+        public static Result CredencialesInvalidas { get; } = Result.Error(Descriptions.CredencialesInvalidas.GetDisplayDescription());
     }
 }

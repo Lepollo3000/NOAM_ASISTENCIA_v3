@@ -8,8 +8,6 @@ namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
 public readonly record struct SucursalId(int Value);
 
-public class SucursalConverter() : ValueConverter<SucursalId, int>(id => id.Value, intValue => new SucursalId(intValue)) { }
-
 [PrimaryKey(nameof(Id))]
 public class Sucursal : Entidad
 {
@@ -23,4 +21,7 @@ public class Sucursal : Entidad
 
     [InverseProperty(nameof(Asistencia.Sucursal))]
     public virtual ICollection<Asistencia> Asistencias { get; set; } = null!;
+
+    [NotMapped]
+    public class IdConverter() : ValueConverter<SucursalId, int>(id => id.Value, intValue => new SucursalId(intValue)) { }
 }

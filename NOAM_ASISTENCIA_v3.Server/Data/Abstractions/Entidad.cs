@@ -11,6 +11,7 @@ public class Entidad
     public UsuarioRolId UsuarioAltaId { get; set; }
     public UsuarioRolId? UsuarioEditaId { get; set; }
     public UsuarioRolId? UsuarioEliminaId { get; set; }
+    public bool EstaEliminado { get; set; } = false;
 
 
     [ForeignKey(nameof(UsuarioAltaId))]

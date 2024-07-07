@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using NOAM_ASISTENCIA_v3.Shared.Contracts.Users;
+using NOAM_ASISTENCIA_v3.Shared.Features.Accounts;
 using System.Linq.Expressions;
 
 namespace NOAM_ASISTENCIA_v3.Client.Components.Shared;
