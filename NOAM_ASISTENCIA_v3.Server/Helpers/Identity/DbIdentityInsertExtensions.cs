@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NOAM_ASISTENCIA_v3.Server.Helpers.Identity;
@@ -41,10 +42,27 @@ public static class DbIdentityInsertExtensions
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var entityType = context.Model.FindEntityType(typeof(T));
-        var value = enable ? "ON" : "OFF";
+        IEntityType? entityType = context.Model.FindEntityType(typeof(T));
 
-        await context.Database.ExecuteSqlAsync($"SET IDENTITY_INSERT {entityType!.GetSchema()}.{entityType!.GetTableName()} {value}");
+        ArgumentNullException.ThrowIfNull(entityType);
+
+        string enableValue = enable switch
+        {
+            true => "ON",
+            false => "OFF"
+        };
+        string? schema = entityType.GetSchema();
+        string? tableName = entityType.GetTableName();
+
+        ArgumentException.ThrowIfNullOrEmpty(tableName);
+
+        FormattableString query = (schema == null) switch
+        {
+            true => $"SET IDENTITY_INSERT [{tableName}] {enableValue}",
+            false => $"SET IDENTITY_INSERT [{schema}].[{tableName}] {enableValue}"
+        };
+
+        await context.Database.ExecuteSqlRawAsync(query.ToString());
     }
 
     public static async Task SaveChangesWithIdentityInsertAsync<T>([NotNull] this DbContext context)
@@ -53,11 +71,24 @@ public static class DbIdentityInsertExtensions
 
         await using var transaction = await context.Database.BeginTransactionAsync();
 
-        await context.EnableIdentityInsertAsync<T>();
-        await context.SaveChangesAsync();
-        await context.DisableIdentityInsertAsync<T>();
+        try
+        {
+            await context.EnableIdentityInsertAsync<T>();
+            await context.SaveChangesAsync();
 
-        await transaction.CommitAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+
+            throw;
+        }
+        finally
+        {
+            await context.DisableIdentityInsertAsync<T>();
+            await context.SaveChangesAsync();
+        }
     }
     #endregion 
 }

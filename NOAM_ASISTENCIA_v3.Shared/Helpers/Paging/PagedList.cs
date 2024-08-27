@@ -1,6 +1,4 @@
-﻿using NOAM_ASISTENCIA_v3.Shared.Features;
-
-namespace NOAM_ASISTENCIA_v3.Server.Helpers.Paging;
+﻿namespace NOAM_ASISTENCIA_v3.Shared.Helpers.Paging;
 
 public class PagedList<T>(IEnumerable<T> items, int totalCount, int pageSize, int pageNumber) : List<T>
 {
@@ -13,9 +11,4 @@ public class PagedList<T>(IEnumerable<T> items, int totalCount, int pageSize, in
 
     public bool HasPrevious => CurrentPage > 1;
     public bool HasNext => CurrentPage < TotalPages;
-}
-
-public static class PagedListExtensions
-{
-    public static PagedList<T> ToPagedList<T>(this IEnumerable<T> items, int totalCount, PageParameters pageParameters) => new(items, totalCount, pageParameters.PageSize, pageParameters.PageNumber);
 }

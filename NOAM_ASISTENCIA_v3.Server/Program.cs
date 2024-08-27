@@ -18,10 +18,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddRoles<ApplicationRole>()
+builder.Services.AddIdentityCore<Usuario>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<Rol>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager<SignInManager<ApplicationUser>>()
+    .AddSignInManager<SignInManager<Usuario>>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthorization();

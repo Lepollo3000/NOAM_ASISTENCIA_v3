@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NOAM_ASISTENCIA_v3.Server.Data.Abstractions;
+using NOAM_ASISTENCIA_v3.Server.Data.Schemas;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.StronglyTypedIds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public readonly record struct SucursalId(int Value);
-
 [PrimaryKey(nameof(Id))]
+[Table(nameof(Sucursal), Schema = ApplicationSchemas.DefaultSchema)]
 public class Sucursal : Entidad
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,7 +21,4 @@ public class Sucursal : Entidad
 
     [InverseProperty(nameof(Asistencia.Sucursal))]
     public virtual ICollection<Asistencia> Asistencias { get; set; } = null!;
-
-    [NotMapped]
-    public class IdConverter() : ValueConverter<SucursalId, int>(id => id.Value, intValue => new SucursalId(intValue)) { }
 }

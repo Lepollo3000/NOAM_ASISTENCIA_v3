@@ -6,18 +6,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-[PrimaryKey(nameof(UsuarioId), nameof(SucursalId), nameof(FechaEntrada))]
-[Table(nameof(Asistencia), Schema = ApplicationSchemas.DefaultSchema)]
-public class Asistencia : Entidad
+[PrimaryKey(nameof(TurnoId), nameof(UsuarioId))]
+[Table(nameof(UsuarioTurno), Schema = ApplicationSchemas.DefaultSchema)]
+public class UsuarioTurno : Entidad
 {
+    public TurnoId TurnoId { get; set; }
     public IdentityId UsuarioId { get; set; }
-    public SucursalId SucursalId { get; set; }
-    public DateTime FechaEntrada { get; set; }
-    public DateTime? FechaSalida { get; set; }
 
 
+    [ForeignKey(nameof(TurnoId))]
+    public virtual Turno Turno { get; set; } = null!;
     [ForeignKey(nameof(UsuarioId))]
     public virtual Usuario Usuario { get; set; } = null!;
-    [ForeignKey(nameof(SucursalId))]
-    public virtual Sucursal Sucursal { get; set; } = null!;
 }

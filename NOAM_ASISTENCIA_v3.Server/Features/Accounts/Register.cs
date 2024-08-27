@@ -33,7 +33,7 @@ public static class Register
         }
     }
 
-    internal sealed class Handler(UserManager<ApplicationUser> userManager, IValidator<Query> validator) : IRequestHandler<Query, Result>
+    internal sealed class Handler(UserManager<Usuario> userManager, IValidator<Query> validator) : IRequestHandler<Query, Result>
     {
         public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
         {
@@ -44,12 +44,11 @@ public static class Register
                 return Result.Invalid(validation.Errors.Adapt<List<ValidationError>>());
             }
 
-            ApplicationUser applicationUser = new()
+            Usuario applicationUser = new()
             {
                 UserName = request.Username,
                 Nombres = request.Nombre,
-                Apellidos = request.Apellido,
-                TurnoId = new(request.IdTurno)
+                Apellidos = request.Apellido
             };
 
             IdentityResult createResult = await userManager.CreateAsync(applicationUser, request.Password);

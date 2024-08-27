@@ -1,29 +1,23 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NOAM_ASISTENCIA_v3.Server.Data.Schemas;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.StronglyTypedIds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public readonly record struct UsuarioRolId(int Value);
-
-public class ApplicationUser : IdentityUser<UsuarioRolId>
+public class Usuario : IdentityUser<IdentityId>
 {
     [MaxLength(500)]
     public string Nombres { get; set; } = null!;
     [MaxLength(500)]
     public string Apellidos { get; set; } = null!;
-    public TurnoId? TurnoId { get; set; }
     public bool Lockout { get; set; }
     public bool ForgotPassword { get; set; }
 
 
-    [ForeignKey(nameof(TurnoId))]
-    public virtual Turno? Turno { get; set; }
-
+    [InverseProperty(nameof(UsuarioTurno.Usuario))]
+    public virtual ICollection<UsuarioTurno> Turnos { get; set; } = null!;
     [InverseProperty(nameof(Asistencia.Usuario))]
     public virtual ICollection<Asistencia> Asistencias { get; set; } = null!;
-
-    [NotMapped]
-    public class IdConverter() : ValueConverter<UsuarioRolId, int>(id => id.Value, intValue => new UsuarioRolId(intValue)) { }
 }

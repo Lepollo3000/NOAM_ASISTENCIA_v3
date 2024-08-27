@@ -1,25 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NOAM_ASISTENCIA_v3.Server.Data.Abstractions;
-using System.ComponentModel.DataAnnotations;
+using NOAM_ASISTENCIA_v3.Server.Data.Schemas;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.StronglyTypedIds;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NOAM_ASISTENCIA_v3.Server.Domain;
 
-public readonly record struct TurnoId(int Value);
-
 [PrimaryKey(nameof(Id))]
+[Table(nameof(Turno), Schema = ApplicationSchemas.DefaultSchema)]
 public class Turno : Entidad
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public TurnoId Id { get; set; }
-    [MaxLength(1000)]
-    public string Descripcion { get; set; } = null!;
+    public TimeOnly HoraInicio { get; set; }
+    public TimeOnly HoraFin { get; set; }
 
 
-    [InverseProperty(nameof(ApplicationUser.Turno))]
-    public virtual ICollection<ApplicationUser> Usuarios { get; set; } = null!;
-
-    [NotMapped]
-    public class IdConverter() : ValueConverter<TurnoId, int>(id => id.Value, intValue => new TurnoId(intValue)) { }
+    [InverseProperty(nameof(TurnoDia.Turno))]
+    public virtual ICollection<TurnoDia> Dias { get; set; } = null!;
+    [InverseProperty(nameof(UsuarioTurno.Turno))]
+    public virtual ICollection<UsuarioTurno> Usuarios { get; set; } = null!;
 }

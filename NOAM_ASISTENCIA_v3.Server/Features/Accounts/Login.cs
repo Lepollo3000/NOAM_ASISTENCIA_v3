@@ -19,13 +19,13 @@ public static class Login
 {
     public class Request : LoginRequest, IRequest<Result<LoginResponse>> { }
 
-    internal sealed class Handler(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration, ILogger<Handler> logger) : IRequestHandler<Request, Result<LoginResponse>>
+    internal sealed class Handler(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager, IConfiguration configuration, ILogger<Handler> logger) : IRequestHandler<Request, Result<LoginResponse>>
     {
         public async Task<Result<LoginResponse>> Handle(Request request, CancellationToken cancellationToken)
         {
             try
             {
-                ApplicationUser? user = await userManager.FindByNameAsync(request.Username);
+                Usuario? user = await userManager.FindByNameAsync(request.Username);
 
                 if (user == null)
                 {

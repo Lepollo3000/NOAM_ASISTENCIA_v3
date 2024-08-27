@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace NOAM_ASISTENCIA_V2.Server.Utills.Identity;
+namespace NOAM_ASISTENCIA_v3.Server.Helpers.Identity;
 
 public class IdentityErrorsTranslated : IdentityErrorDescriber
 {
-    public override IdentityError DefaultError() { return new IdentityError { Code = nameof(DefaultError), Description = $"Un error desconocido ha ocurrido." }; }
+    public override IdentityError DefaultError() { return new IdentityError { Code = nameof(DefaultError), Description = $"Un error inesperado ha ocurrido." }; }
     public override IdentityError ConcurrencyFailure() { return new IdentityError { Code = nameof(ConcurrencyFailure), Description = "Error de concurrencia optimista, el objeto ha sido modificado." }; }
     public override IdentityError PasswordMismatch() { return new IdentityError { Code = nameof(PasswordMismatch), Description = "Contraseña incorrecta." }; }
     public override IdentityError InvalidToken() { return new IdentityError { Code = nameof(InvalidToken), Description = "Token inválido." }; }

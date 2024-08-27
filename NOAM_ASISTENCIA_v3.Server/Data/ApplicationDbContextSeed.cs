@@ -1,24 +1,26 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NOAM_ASISTENCIA_v3.Server.Domain;
+using NOAM_ASISTENCIA_v3.Server.Helpers.Identity;
+using NOAM_ASISTENCIA_v3.Shared.Helpers.StronglyTypedIds;
 
 namespace NOAM_ASISTENCIA_v3.Server.Data;
 
 public class ApplicationDbContextSeed : IHostedService
 {
     private readonly IConfiguration _configuration;
-    private readonly ApplicationDbContext _dbcontext;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<Usuario> _userManager;
+    private readonly RoleManager<Rol> _roleManager;
     private readonly ILogger<ApplicationDbContextSeed> _logger;
 
     public ApplicationDbContextSeed(IServiceProvider serviceProvider, IConfiguration configuration)
     {
         var scope = serviceProvider.CreateAsyncScope();
 
-        _dbcontext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        _userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+        _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        _userManager = scope.ServiceProvider.GetRequiredService<UserManager<Usuario>>();
+        _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Rol>>();
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContextSeed>>();
 
         _configuration = configuration;
@@ -33,8 +35,8 @@ public class ApplicationDbContextSeed : IHostedService
     {
         if (await TryToMigrate())
         {
-            //await SeedDefaultData();
-            await SeedDefaultUsersAndRoles();
+            IEnumerable<TempTurno> turnos = await SeedDefaultData();
+            await SeedDefaultUsersAndRoles(turnos: turnos);
         }
     }
 
@@ -42,11 +44,11 @@ public class ApplicationDbContextSeed : IHostedService
     {
         try
         {
-            await _dbcontext.Database.MigrateAsync();
+            await _context.Database.MigrateAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error al migrar la base de datos. {ex}", ex);
+            _logger.LogError("Error al migrar la base de datos. '{ex}'.", ex);
 
             return false;
         }
@@ -55,96 +57,277 @@ public class ApplicationDbContextSeed : IHostedService
     }
     #endregion
 
+    #region Seed super user
+    private async Task SeedSuperUser()
+    {
+        await SeedDefaultUsersAndRoles(turnos: [], insertSuperUser: true);
+    }
+
+    private async Task<Usuario?> GetSuperUser()
+    {
+        return await _userManager.FindByNameAsync("superusuario");
+    }
+    #endregion
+
     #region Seed default data
+    private async Task<IEnumerable<TempTurno>> SeedDefaultData()
+    {
+        try
+        {
+            await SeedSuperUser();
+
+            Usuario? usuario = await GetSuperUser();
+
+            if (usuario != null)
+            {
+                await InsertDefaultSucursales(usuario);
+                TempTurno turno = await InsertDefaultTurnos(usuario);
+
+                return [turno];
+            }
+
+            throw new InvalidOperationException("No se encontró un usuario para crear los datos predeterminados.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al crear datos predeterminados. '{ex}'.", ex.Message);
+
+            throw;
+        }
+    }
+
+    private async Task InsertDefaultSucursales(Usuario usuario)
+    {
+        List<TempSucursal> tempSucursales =
+        [
+            new(Id: new(1), CodigoId: "3974", Descripcion: "BOWLING MONTERREY"),
+            new(Id: new(2), CodigoId: "4010", Descripcion: "SMART FIT PLAZA TITAN MTY"),
+            new(Id: new(3), CodigoId: "4011", Descripcion: "SMART FIT MULTIPLAZA MTY"),
+            new(Id: new(4), CodigoId: "4012", Descripcion: "SMART FIT PLAZA FIESTA MTY"),
+            new(Id: new(5), CodigoId: "4017", Descripcion: "SMART FIT STA CATARINA MTY")
+        ];
+
+        foreach (TempSucursal tempSucursal in tempSucursales)
+        {
+            bool existe = await _context.Sucursales
+                .Where(model => model.Id == tempSucursal.Id)
+                .AnyAsync();
+
+            if (!existe)
+            {
+                Sucursal sucursal = new()
+                {
+                    Id = tempSucursal.Id,
+                    CodigoId = tempSucursal.CodigoId,
+                    Descripcion = tempSucursal.Descripcion,
+
+                    FechaUtcAlta = DateTime.UtcNow,
+                    UsuarioAltaId = usuario.Id
+                };
+
+                _context.Add(sucursal);
+            }
+        }
+
+        await _context.SaveChangesWithIdentityInsertAsync<Sucursal>();
+    }
+
+    private async Task<TempTurno> InsertDefaultTurnos(Usuario usuario)
+    {
+        IEnumerable<TempTurno> tempTurnos =
+        [
+            new(Id: new(1),
+                HoraInicio: new TimeOnly(hour: 08, minute: 30),
+                HoraFin: new TimeOnly(hour: 14, minute: 00),
+                Dias:
+                [
+                    new(DayOfWeek.Monday),
+                    new(DayOfWeek.Tuesday),
+                    new(DayOfWeek.Wednesday),
+                    new(DayOfWeek.Thursday),
+                    new(DayOfWeek.Friday)
+                ]),
+            new(Id: new(2),
+                HoraInicio: new TimeOnly(hour: 14, minute: 00),
+                HoraFin: new TimeOnly(hour: 20, minute: 30),
+                Dias:
+                [
+                    new(DayOfWeek.Monday),
+                    new(DayOfWeek.Tuesday),
+
+                    new(DayOfWeek.Wednesday),
+                    new(DayOfWeek.Thursday),
+                    new(DayOfWeek.Friday)
+                ]),
+        ];
+
+        foreach (TempTurno tempTurno in tempTurnos)
+        {
+            bool existe = await _context.Turnos
+                .Where(model => model.Id == tempTurno.Id)
+                .AnyAsync();
+
+            if (!existe)
+            {
+                Turno turno = new()
+                {
+                    HoraInicio = tempTurno.HoraInicio,
+                    HoraFin = tempTurno.HoraFin,
+
+                    FechaUtcAlta = DateTime.UtcNow,
+                    UsuarioAltaId = usuario.Id
+                };
+
+                _context.Add(turno);
+
+                foreach (TempTurnoDia tempTurnoDia in tempTurno.Dias)
+                {
+                    TurnoDia turnoDia = new()
+                    {
+                        Turno = turno,
+                        Dia = tempTurnoDia.Dia,
+
+                        FechaUtcAlta = DateTime.UtcNow,
+                        UsuarioAltaId = usuario.Id
+                    };
+
+                    _context.Add(turnoDia);
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return tempTurnos.First();
+    }
     #endregion
 
     #region Seed default user and roles
-    private async Task SeedDefaultUsersAndRoles()
+    private async Task SeedDefaultUsersAndRoles(IEnumerable<TempTurno> turnos, bool insertSuperUser = false)
     {
         try
         {
             string adminRole = "Administrador";
-            TempUser adminUser = new(
-                name: "administrador",
-                email: "",
-                password: "Pa55w.rd",
-                nombre: "Usuario",
-                apellido: "Administrador",
-                roles: [adminRole]);
-
             string gerenteRole = "Gerente";
-            TempUser gerenteUser = new(
-                name: "gerente",
-                email: "",
-                password: "Pa55w.rd",
-                nombre: "Usuario",
-                apellido: "Gerente",
-                roles: [gerenteRole]);
-
             string intendenteRole = "Intendente";
+
+            TempUser adminUser = new(
+                Name: "administrador",
+                Email: string.Empty,
+                Password: "Pa55w.rd",
+                Nombre: "Usuario",
+                Apellido: "Administrador",
+                Roles: [adminRole],
+                Turnos: []);
+
+            TempUser gerenteUser = new(
+                Name: "gerente",
+                Email: string.Empty,
+                Password: "Pa55w.rd",
+                Nombre: "Usuario",
+                Apellido: "Gerente",
+                Roles: [gerenteRole],
+                Turnos: []);
+
             TempUser intendenteUser = new(
-                name: "intendente",
-                email: "",
-                password: "Pa55w.rd",
-                nombre: "Usuario",
-                apellido: "Intendente",
-                roles: [intendenteRole]);
+                Name: "intendente",
+                Email: string.Empty,
+                Password: "Pa55w.rd",
+                Nombre: "Usuario",
+                Apellido: "Intendente",
+                Roles: [intendenteRole],
+                Turnos: turnos);
+
+            TempUser superUser = new(
+                Name: "superusuario",
+                Email: string.Empty,
+                Password: "Pa55w.rd",
+                Nombre: "Usario",
+                Apellido: "Administrador",
+                Roles: [adminRole, gerenteRole, intendenteRole],
+                Turnos: []);
 
             IEnumerable<string> roles = [adminRole, gerenteRole, intendenteRole];
-            IEnumerable<TempUser> users = [adminUser, gerenteUser, intendenteUser];
+            IEnumerable<TempUser> tempUsers = insertSuperUser switch
+            {
+                true => [superUser],
+                false => [adminUser, gerenteUser, intendenteUser]
+            };
+            Usuario? superUsuario = insertSuperUser switch
+            {
+                true => null,
+                false => await GetSuperUser()
+            };
 
             await CreateRolesIfDontExist(roles);
-            await CreateUsersIfDontExist(users);
+            await CreateUsersIfDontExist(tempUsers: tempUsers, superUsuario: superUsuario);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error al crear roles y usuarios.");
+            _logger.LogError("Error al crear usuario y roles predeterminados. '{ex}'.", ex.Message);
         }
     }
 
     private async Task CreateRolesIfDontExist(IEnumerable<string> roles)
     {
-        foreach ((string role, int i) in roles.Select((role, i) => (role, i)))
+        foreach (string role in roles)
         {
-            ApplicationRole? oRole = await _roleManager.FindByNameAsync(role);
+            Rol? model = await _roleManager.FindByNameAsync(role);
 
-            if (oRole == null)
+            if (model == null)
             {
-                oRole = new ApplicationRole()
+                model = new Rol()
                 {
                     Name = role
                 };
 
-                await _roleManager.CreateAsync(oRole);
+                await _roleManager.CreateAsync(model);
             }
         }
     }
 
-    private async Task CreateUsersIfDontExist(IEnumerable<TempUser> users)
+    private async Task CreateUsersIfDontExist(IEnumerable<TempUser> tempUsers, Usuario? superUsuario)
     {
-        foreach ((TempUser user, int i) in users.Select((user, i) => (user, i)))
+        foreach (TempUser tempUser in tempUsers)
         {
-            ApplicationUser? oUser = await _userManager.FindByNameAsync(user.Name);
+            Usuario? user = await _userManager.FindByNameAsync(tempUser.Name);
 
-            if (oUser == null)
+            if (user == null)
             {
-                oUser = new ApplicationUser()
+                user = new Usuario()
                 {
-                    UserName = user.Name,
-                    Email = user.Email,
-                    Nombres = user.Nombre,
-                    Apellidos = user.Apellido,
-                    TurnoId = null
+                    UserName = tempUser.Name,
+                    Email = tempUser.Email,
+                    Nombres = tempUser.Nombre,
+                    Apellidos = tempUser.Apellido
                 };
 
-                await _userManager.CreateAsync(oUser, user.Password);
+                await _userManager.CreateAsync(user, tempUser.Password);
+                string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                await _userManager.ConfirmEmailAsync(user, token);
 
-                string token = await _userManager.GenerateEmailConfirmationTokenAsync(oUser);
-                await _userManager.ConfirmEmailAsync(oUser, token);
-
-                if (user.Roles.Any())
+                if (tempUser.Roles.Any())
                 {
-                    await _userManager.AddToRolesAsync(oUser, user.Roles);
+                    await _userManager.AddToRolesAsync(user, tempUser.Roles);
+                }
+
+                if (tempUser.Turnos.Any() && superUsuario != null)
+                {
+                    foreach (TempTurno turno in tempUser.Turnos)
+                    {
+                        UsuarioTurno usuarioTurno = new()
+                        {
+                            TurnoId = turno.Id,
+                            UsuarioId = user.Id,
+
+                            FechaUtcAlta = DateTime.UtcNow,
+                            UsuarioAltaId = superUsuario.Id
+                        };
+
+                        _context.Add(usuarioTurno);
+                    }
+
+                    await _context.SaveChangesAsync();
                 }
             }
         }
@@ -152,28 +335,11 @@ public class ApplicationDbContextSeed : IHostedService
     #endregion
 
     #region Clases temporales
-    private class TempUser(string name, string email, string password, string nombre, string apellido, IEnumerable<string> roles)
-    {
-        public string Name { get; set; } = name;
-        public string Email { get; set; } = email;
-        public string Password { get; set; } = password;
-        public string Nombre { get; set; } = nombre;
-        public string Apellido { get; set; } = apellido;
-        public IEnumerable<string> Roles { get; set; } = roles;
-    }
+    private record TempUser(string Name, string Email, string Password, string Nombre, string Apellido, IEnumerable<string> Roles, IEnumerable<TempTurno> Turnos);
 
-    private class TempTurno(int id, string descripcion)
-    {
-        public int Id { get; } = id;
-        public string Descripcion { get; } = descripcion;
-    }
+    private record TempSucursal(SucursalId Id, string CodigoId, string Descripcion);
 
-    private class TempServicio(int id, string codigoId, string descripcion)
-    {
-        public int Id { get; } = id;
-        public string CodigoId { get; } = codigoId;
-        public string Descripcion { get; } = descripcion;
-    }
+    private record TempTurnoDia(DayOfWeek Dia);
+    private record TempTurno(TurnoId Id, TimeOnly HoraInicio, TimeOnly HoraFin, IEnumerable<TempTurnoDia> Dias);
     #endregion
-
 }
